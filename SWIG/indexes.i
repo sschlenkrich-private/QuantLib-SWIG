@@ -32,6 +32,7 @@
 %include timeseries.i
 %include vectors.i
 
+
 %{
 using QuantLib::IndexManager;
 %}
@@ -308,6 +309,7 @@ class Name##Ptr : public OvernightIndexPtr {
 
 %{
 using QuantLib::SwapIndex;
+using QuantLib::VanillaSwap;
 typedef boost::shared_ptr<Index> SwapIndexPtr;
 %}
 
@@ -390,8 +392,17 @@ class SwapIndexPtr : public InterestRateIndexPtr {
             return boost::dynamic_pointer_cast<SwapIndex>(*self)
                 ->clone(tenor);
 		}
+        boost::shared_ptr<VanillaSwap> underlyingSwap( const Date& fixingDate) {
+            return boost::dynamic_pointer_cast<SwapIndex>(*self)
+                ->underlyingSwap(fixingDate);
+        }        
     }
 };
+
+namespace std {
+    %template(SwapIndexVector) vector<SwapIndexPtr>;
+}
+
 
 %define export_swap_instance(Name)
 %{

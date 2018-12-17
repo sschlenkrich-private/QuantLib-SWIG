@@ -106,6 +106,10 @@ class VanillaSwapPtr : public SwapPtr {
                                     fixedDayCount,floatSchedule,libor,
                                     spread, floatingDayCount));
         }
+        // wrap C++ object back into SWIG object
+        VanillaSwapPtr( const boost::shared_ptr<VanillaSwap>&  swap ) {
+            return new VanillaSwapPtr( swap );
+        }        
         Rate fairRate() {
             return boost::dynamic_pointer_cast<VanillaSwap>(*self)->fairRate();
         }
@@ -168,6 +172,9 @@ class VanillaSwapPtr : public SwapPtr {
         }
     }
 };
+
+// we need to tell SWIG to export shared_ptr with VanillaSwap
+%template(VanillaSwapBase) boost::shared_ptr<VanillaSwap>;
 
 
 #if defined(SWIGPYTHON)

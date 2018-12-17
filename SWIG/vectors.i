@@ -38,6 +38,8 @@ namespace std {
     %template(DoublePair) pair<double,double>;
     %template(DoublePairVector) vector<pair<double,double> >;
 
+    %template(DoubleVectorVector) vector< vector<double> >;    
+    
 #if !defined(SWIGR)
     %template(NodePair) pair<Date,double>;
     %template(NodeVector) vector<pair<Date,double> >;

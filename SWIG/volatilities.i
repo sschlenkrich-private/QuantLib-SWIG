@@ -880,27 +880,29 @@ class SabrSmileSectionPtr
                          Rate forward,
                          const std::vector<Real>& sabrParameters,
                          const DayCounter& dc = Actual365Fixed(),
-                         Real shift = 0.0) {
+                         const Real shift = 0.0, const bool useNormalVols = false) {
             return new SabrSmileSectionPtr(
                 new SabrSmileSection(
                     d,
                     forward,
                     sabrParameters,
                     dc,
-                    shift
+                    shift,
+                    useNormalVols
                 )
             );
         }
         SabrSmileSectionPtr(Time timeToExpiry,
                          Rate forward,
                          const std::vector<Real>& sabrParameters,
-                         Real shift = 0.0) {
+                         const Real shift = 0.0, const bool useNormalVols = false) {
             return new SabrSmileSectionPtr(
                 new SabrSmileSection(
                     timeToExpiry,
                     forward,
                     sabrParameters,
-                    shift
+                    shift,
+                    useNormalVols
                 )
             );
         }
