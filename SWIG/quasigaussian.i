@@ -37,11 +37,13 @@
 
 %{
 #include <ql/experimental/templatemodels/qgaussian2/qgcalibrator.hpp>
+#include <ql/experimental/templatemodels/qgaussian2/qglsvmodel.hpp>
 
 using QuantLib::QuasiGaussianModel;
 using QuantLib::QGSwaprateModel;
 using QuantLib::QGAverageSwaprateModel;
 using QuantLib::QGCalibrator;
+using QuantLib::QGLocalvolModel;
 
 %}
 
@@ -50,6 +52,7 @@ using QuantLib::QGCalibrator;
 //%template(QGSwaprateModelBase) boost::shared_ptr<QGSwaprateModel>;
 //%template(QGAverageSwaprateModelBase) boost::shared_ptr<QGAverageSwaprateModel>;
 %template(QGCalibratorBase) boost::shared_ptr<QGCalibrator>;
+%template(QGLocalvolModelBase) boost::shared_ptr<QGLocalvolModel>;
 
 // we need to tell C++ that our new pointer-based classes are type names
 %{
@@ -57,6 +60,7 @@ typedef boost::shared_ptr<RealStochasticProcess> QuasiGaussianModelPtr;
 typedef boost::shared_ptr<RealStochasticProcess> QGSwaprateModelPtr;
 typedef boost::shared_ptr<RealStochasticProcess> QGAverageSwaprateModelPtr;
 typedef boost::shared_ptr<QGCalibrator> QGCalibratorPtr;
+typedef boost::shared_ptr<QGLocalvolModel> QGLocalvolModelPtr;
 %}
 
 // we use an object adapter pattern to extend base class interface by new underlying class methods 
@@ -211,6 +215,100 @@ class QGCalibratorPtr : public boost::shared_ptr<QGCalibrator> {
 		void acceptCalibration() { 
             boost::dynamic_pointer_cast<QGCalibrator>(*self)->acceptCalibration();
         }
+    }    
+};
+
+%rename(QGLocalvolModel) QGLocalvolModelPtr;
+class QGLocalvolModelPtr : public boost::shared_ptr<QGLocalvolModel> {
+  public:
+    %extend {
+        QGLocalvolModelPtr(
+            const std::string                                      flavor,            // "SLV"
+			const Handle<YieldTermStructure>&                      hYTS,
+			const Handle<SwaptionVolatilityStructure>&             volTS,
+			const Real                                             chi,               // 0.03
+			const Real                                             theta,             // 0.1
+			const Real                                             eta,               // 0.7
+			const SwapIndexPtr&                                    swapIndex,         // EuriborSwapIsdaFixA
+			const std::vector<Real>&                               times,             // [1.0,2.0,..,10.0]
+			const std::vector<Real>&                               stdDevGrid,        // [-3.0, ..., 3.0] (for non-SLV models) or [] (for SLV model)
+			const size_t                                           nStrikes,          // 101 or 201 (only for SLV model)
+			const bool                                             calcStochVolAdjustment,  // True
+			const Real                                             kernelWidth,       // 1.06 N^0.2, ~0.15, see Silverman's rule of thumb
+			const Real                                             svKernelScaling,   // ~3.0, smooth conditional expectation typically requires larger kernel width
+			const size_t                                           nPaths,            // 10k
+			const BigNatural                                       seed = 1234,
+			const size_t                                           debugLevel = 1) {
+		    std::string flavorUpperCase = flavor;
+		    boost::to_upper(flavorUpperCase);
+            boost::shared_ptr<SwapIndex> swapIdx_sp =  boost::dynamic_pointer_cast<SwapIndex>(swapIndex);
+            if (flavorUpperCase.compare("SLV") == 0) {            
+                return new QGLocalvolModelPtr(   
+                    new QuantLib::QGLSVModel(hYTS,volTS,chi,theta,eta,swapIdx_sp,times,nStrikes,
+                        calcStochVolAdjustment,kernelWidth,svKernelScaling,nPaths,seed,debugLevel));
+            }
+		    else if (flavorUpperCase.compare("BACKWARD") == 0) {
+                return new QGLocalvolModelPtr(   
+                    new QuantLib::QGLocalvolModelBackwardFlavor(hYTS, volTS, chi, theta, eta, swapIdx_sp,
+                        times, stdDevGrid, false, kernelWidth, nPaths, seed, debugLevel));
+		    }
+		    else if (flavorUpperCase.compare("FORWARD") == 0) {
+                return new QGLocalvolModelPtr(   
+                    new QuantLib::QGLocalvolModelForwardFlavor(hYTS, volTS, chi, theta, eta, swapIdx_sp,
+                        times, stdDevGrid, false, kernelWidth, nPaths, seed, debugLevel));
+            }
+		    else if (flavorUpperCase.compare("ANALYTIC") == 0) {
+                return new QGLocalvolModelPtr(   
+                    new QuantLib::QGLocalvolModelAnalyticFlavor(hYTS, volTS, chi, swapIdx_sp,
+                        times, stdDevGrid, nPaths, seed, debugLevel));
+            }
+		    else if (flavorUpperCase.compare("MONTECARLO") == 0) {
+                return new QGLocalvolModelPtr(   
+                    new QuantLib::QGLocalvolModelMonteCarloFlavor(hYTS, volTS, chi, theta, eta, swapIdx_sp,
+                        times, stdDevGrid, false, kernelWidth, nPaths, seed, debugLevel));
+		    }
+		    if (flavorUpperCase.compare("BACKWARDSTOCHVOL") == 0) {
+                return new QGLocalvolModelPtr(   
+                    new QuantLib::QGLocalvolModelBackwardFlavor(hYTS, volTS, chi, theta, eta, swapIdx_sp,
+                        times, stdDevGrid, true, kernelWidth, nPaths, seed, debugLevel));
+		    }
+		    else if (flavorUpperCase.compare("FORWARDSTOCHVOL") == 0) {
+                return new QGLocalvolModelPtr(   
+                    new QuantLib::QGLocalvolModelForwardFlavor(hYTS, volTS, chi, theta, eta, swapIdx_sp,
+                        times, stdDevGrid, true, kernelWidth, nPaths, seed, debugLevel));
+		    }
+		    else if (flavorUpperCase.compare("MONTECARLOSTOCHVOL") == 0) {
+                return new QGLocalvolModelPtr(   
+                    new QuantLib::QGLocalvolModelMonteCarloFlavor(hYTS, volTS, chi, theta, eta, swapIdx_sp,
+                        times, stdDevGrid, true, kernelWidth, nPaths, seed, debugLevel));
+		    }
+            QL_FAIL("Invalid flavor parameter");
+        }
+        
+		// methods and inspectors
+
+        void simulateAndCalibrate() {
+            boost::dynamic_pointer_cast<QGLocalvolModel>(*self)->simulateAndCalibrate();
+        }
+
+        const boost::shared_ptr<RealMCSimulation> simulation() { 
+            return boost::dynamic_pointer_cast<QGLocalvolModel>(*self)->simulation();
+        }
+
+        const Real sigmaS(const Size idx, const Real s) { 
+            return boost::dynamic_pointer_cast<QGLocalvolModel>(*self)->sigmaS(idx,s);
+        }
+
+		std::vector<std::string> debugLog() { 
+            return boost::dynamic_pointer_cast<QGLocalvolModel>(*self)->debugLog();
+        }
+
+		// test the calibration of the model
+		std::vector< std::vector<Real> > calibrationTest(const std::vector<Date>&  exerciseDates,
+			                                             const std::vector<Real>&  stdDevStrikes ) {
+            return boost::dynamic_pointer_cast<QGLocalvolModel>(*self)->calibrationTest(exerciseDates,stdDevStrikes);
+        }
+        
     }    
 };
 
