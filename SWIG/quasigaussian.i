@@ -37,12 +37,14 @@
 
 %{
 #include <ql/experimental/templatemodels/qgaussian2/qgcalibrator.hpp>
+#include <ql/experimental/templatemodels/qgaussian2/mccalibrator.hpp>
 #include <ql/experimental/templatemodels/qgaussian2/qglsvmodel.hpp>
 
 using QuantLib::QuasiGaussianModel;
 using QuantLib::QGSwaprateModel;
 using QuantLib::QGAverageSwaprateModel;
 using QuantLib::QGCalibrator;
+using QuantLib::QGMonteCarloCalibrator;
 using QuantLib::QGLocalvolModel;
 
 %}
@@ -52,6 +54,7 @@ using QuantLib::QGLocalvolModel;
 //%template(QGSwaprateModelBase) boost::shared_ptr<QGSwaprateModel>;
 //%template(QGAverageSwaprateModelBase) boost::shared_ptr<QGAverageSwaprateModel>;
 %template(QGCalibratorBase) boost::shared_ptr<QGCalibrator>;
+%template(QGMonteCarloCalibratorBase) boost::shared_ptr<QGMonteCarloCalibrator>;
 %template(QGLocalvolModelBase) boost::shared_ptr<QGLocalvolModel>;
 
 // we need to tell C++ that our new pointer-based classes are type names
@@ -60,6 +63,7 @@ typedef boost::shared_ptr<RealStochasticProcess> QuasiGaussianModelPtr;
 typedef boost::shared_ptr<RealStochasticProcess> QGSwaprateModelPtr;
 typedef boost::shared_ptr<RealStochasticProcess> QGAverageSwaprateModelPtr;
 typedef boost::shared_ptr<QGCalibrator> QGCalibratorPtr;
+typedef boost::shared_ptr<QGMonteCarloCalibrator> QGMonteCarloCalibratorPtr;
 typedef boost::shared_ptr<QGLocalvolModel> QGLocalvolModelPtr;
 %}
 
@@ -136,6 +140,7 @@ class QGSwaprateModelPtr : public boost::shared_ptr<RealStochasticProcess> {
         Real              annuity     ( const Real t, const std::vector<Real>& x, const std::vector< std::vector<Real> >& y) { return boost::dynamic_pointer_cast<QGSwaprateModel>(*self)->annuity     (t,x,y);}
         Real              swapRate    ( const Real t, const std::vector<Real>& x, const std::vector< std::vector<Real> >& y) { return boost::dynamic_pointer_cast<QGSwaprateModel>(*self)->swapRate    (t,x,y);}           
         std::vector<Real> swapGradient( const Real t, const std::vector<Real>& x, const std::vector< std::vector<Real> >& y) { return boost::dynamic_pointer_cast<QGSwaprateModel>(*self)->swapGradient(t,x,y);}
+        std::vector< std::vector<Real> > swapHessian( const Real t, const std::vector<Real>& x, const std::vector< std::vector<Real> >& y) { return boost::dynamic_pointer_cast<QGSwaprateModel>(*self)->swapHessian(t,x,y);}
         Real sigma  (const Real t) { return boost::dynamic_pointer_cast<QGSwaprateModel>(*self)->sigma (t) ;}
         Real slope  (const Real t) { return boost::dynamic_pointer_cast<QGSwaprateModel>(*self)->slope (t) ;}
         Real eta    (const Real t) { return boost::dynamic_pointer_cast<QGSwaprateModel>(*self)->eta   (t) ;}
@@ -218,6 +223,60 @@ class QGCalibratorPtr : public boost::shared_ptr<QGCalibrator> {
     }    
 };
 
+%rename(QGMonteCarloCalibrator) QGMonteCarloCalibratorPtr;
+class QGMonteCarloCalibratorPtr : public boost::shared_ptr<QGMonteCarloCalibrator> {
+  public:
+    %extend {
+        QGMonteCarloCalibratorPtr(
+		    const QuasiGaussianModelPtr&                model,
+			const Handle<SwaptionVolatilityStructure>&  volTS,
+			const std::vector< SwapIndexPtr >&          swapIndices,
+			const Real                                  monteCarloStepSize,
+            const Size                                  monteCarloPaths,
+            const Real                                  sigmaMax,
+            const Real                                  slopeMax,
+            const Real                                  curveMax,
+            const Real                                  sigmaWeight,
+            const Real                                  slopeWeight,
+            const Real                                  curveWeight,
+			const Real                                  penaltySigma,
+			const Real                                  penaltySlope,
+			const Real                                  penaltyCurve,
+			const EndCriteria&                          endCriteria ) {
+            boost::shared_ptr<QuasiGaussianModel> qgmodel = boost::dynamic_pointer_cast<QuasiGaussianModel>(model);
+            QL_REQUIRE(qgmodel,"QuasiGaussianModel required");            
+            std::vector< boost::shared_ptr<SwapIndex> > indices;
+            for (Size k=0; k<swapIndices.size(); ++k)
+                indices.push_back( boost::dynamic_pointer_cast<SwapIndex>(swapIndices[k]) );
+            return new QGMonteCarloCalibratorPtr(   
+                new QGMonteCarloCalibrator(qgmodel,volTS,indices,monteCarloStepSize,monteCarloPaths,
+                    sigmaMax,slopeMax,curveMax,sigmaWeight,slopeWeight,curveWeight,
+                    penaltySigma,penaltySlope,penaltyCurve, boost::make_shared<EndCriteria>(endCriteria)) );
+        }
+		// a single optimisation run
+		Integer calibrate( const std::vector< std::vector< Real > >&  isInput,
+			               const std::vector< std::vector< Real > >&  isOutput,
+		                   Real                                       epsfcn = 1.0e-4 ) { // delta for finite differences
+            return boost::dynamic_pointer_cast<QGMonteCarloCalibrator>(*self)->calibrate(isInput,isOutput,epsfcn);
+        }
+
+		// inspectors
+		const boost::shared_ptr<RealStochasticProcess> calibratedModel() {
+            return boost::dynamic_pointer_cast<RealStochasticProcess>(
+                boost::dynamic_pointer_cast<QGMonteCarloCalibrator>(*self)->calibratedModel());
+        }
+        const boost::shared_ptr<RealMCSimulation> mcSimulation() { 
+            return boost::dynamic_pointer_cast<QGMonteCarloCalibrator>(*self)->mcSimulation();
+        }        
+		const std::vector<std::string>& debugLog() {
+            return boost::dynamic_pointer_cast<QGMonteCarloCalibrator>(*self)->debugLog();
+        }
+		void acceptCalibration() { 
+            boost::dynamic_pointer_cast<QGMonteCarloCalibrator>(*self)->acceptCalibration();
+        }
+    }    
+};
+
 %rename(QGLocalvolModel) QGLocalvolModelPtr;
 class QGLocalvolModelPtr : public boost::shared_ptr<QGLocalvolModel> {
   public:
@@ -250,12 +309,12 @@ class QGLocalvolModelPtr : public boost::shared_ptr<QGLocalvolModel> {
 		    else if (flavorUpperCase.compare("BACKWARD") == 0) {
                 return new QGLocalvolModelPtr(   
                     new QuantLib::QGLocalvolModelBackwardFlavor(hYTS, volTS, chi, theta, eta, swapIdx_sp,
-                        times, stdDevGrid, false, kernelWidth, nPaths, seed, debugLevel));
+                        times, stdDevGrid, false, kernelWidth*svKernelScaling, nPaths, seed, debugLevel));
 		    }
 		    else if (flavorUpperCase.compare("FORWARD") == 0) {
                 return new QGLocalvolModelPtr(   
                     new QuantLib::QGLocalvolModelForwardFlavor(hYTS, volTS, chi, theta, eta, swapIdx_sp,
-                        times, stdDevGrid, false, kernelWidth, nPaths, seed, debugLevel));
+                        times, stdDevGrid, false, kernelWidth*svKernelScaling, nPaths, seed, debugLevel));
             }
 		    else if (flavorUpperCase.compare("ANALYTIC") == 0) {
                 return new QGLocalvolModelPtr(   
@@ -265,22 +324,22 @@ class QGLocalvolModelPtr : public boost::shared_ptr<QGLocalvolModel> {
 		    else if (flavorUpperCase.compare("MONTECARLO") == 0) {
                 return new QGLocalvolModelPtr(   
                     new QuantLib::QGLocalvolModelMonteCarloFlavor(hYTS, volTS, chi, theta, eta, swapIdx_sp,
-                        times, stdDevGrid, false, kernelWidth, nPaths, seed, debugLevel));
+                        times, stdDevGrid, false, kernelWidth*svKernelScaling, nPaths, seed, debugLevel));
 		    }
 		    if (flavorUpperCase.compare("BACKWARDSTOCHVOL") == 0) {
                 return new QGLocalvolModelPtr(   
                     new QuantLib::QGLocalvolModelBackwardFlavor(hYTS, volTS, chi, theta, eta, swapIdx_sp,
-                        times, stdDevGrid, true, kernelWidth, nPaths, seed, debugLevel));
+                        times, stdDevGrid, true, kernelWidth*svKernelScaling, nPaths, seed, debugLevel));
 		    }
 		    else if (flavorUpperCase.compare("FORWARDSTOCHVOL") == 0) {
                 return new QGLocalvolModelPtr(   
                     new QuantLib::QGLocalvolModelForwardFlavor(hYTS, volTS, chi, theta, eta, swapIdx_sp,
-                        times, stdDevGrid, true, kernelWidth, nPaths, seed, debugLevel));
+                        times, stdDevGrid, true, kernelWidth*svKernelScaling, nPaths, seed, debugLevel));
 		    }
 		    else if (flavorUpperCase.compare("MONTECARLOSTOCHVOL") == 0) {
                 return new QGLocalvolModelPtr(   
                     new QuantLib::QGLocalvolModelMonteCarloFlavor(hYTS, volTS, chi, theta, eta, swapIdx_sp,
-                        times, stdDevGrid, true, kernelWidth, nPaths, seed, debugLevel));
+                        times, stdDevGrid, true, kernelWidth*svKernelScaling, nPaths, seed, debugLevel));
 		    }
             QL_FAIL("Invalid flavor parameter");
         }
