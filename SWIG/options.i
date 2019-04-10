@@ -460,13 +460,14 @@ class HestonSLVMCModelPtr : public boost::shared_ptr<HestonSLVMCModel> {
             const Size                              timeStepsPerYear = 365,
             const Size                              nBins = 201,
             const Size                              calibrationPaths = (1 << 15),
-            const std::vector<Date>&                mandatoryDates = std::vector<Date>()) {
+            const std::vector<Date>&                mandatoryDates = std::vector<Date>(),
+            const unsigned long                     seed = 0) {
             boost::shared_ptr<HestonModel> hestonModel = boost::dynamic_pointer_cast<HestonModel>(model);
             QL_REQUIRE(hestonModel, "Heston model required");                        
             // for convenience we hard-code the use of MersenneTwister-based BM generator
             return new HestonSLVMCModelPtr(
                 new HestonSLVMCModel( localVol, Handle<HestonModel>(hestonModel), boost::shared_ptr<QuantLib::BrownianGeneratorFactory>(
-				new QuantLib::MTBrownianGeneratorFactory()), endDate, timeStepsPerYear, nBins, calibrationPaths, mandatoryDates) );
+				new QuantLib::MTBrownianGeneratorFactory(seed)), endDate, timeStepsPerYear, nBins, calibrationPaths, mandatoryDates) );
         }
         
         boost::shared_ptr<LocalVolTermStructure> leverageFunction() { 
