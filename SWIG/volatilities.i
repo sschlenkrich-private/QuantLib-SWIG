@@ -349,8 +349,6 @@ class BlackVarianceSurfacePtr
     }
 };
 
-
-
 // constant local vol term structure
 %{
 using QuantLib::LocalConstantVol;
@@ -395,7 +393,7 @@ class LocalConstantVolPtr : public boost::shared_ptr<LocalVolTermStructure> {
 
 
 
-// constant local vol term structure
+// non-parametric local vol term structure
 %{
 using QuantLib::LocalVolSurface;
 typedef boost::shared_ptr<LocalVolTermStructure> LocalVolSurfacePtr;
@@ -420,6 +418,36 @@ class LocalVolSurfacePtr : public boost::shared_ptr<LocalVolTermStructure> {
             return new LocalVolSurfacePtr(
                 new LocalVolSurface(blackTS, riskFreeTS, 
                     dividendTS, underlying));
+        }
+    }
+};
+
+// decorate LocalVolSurface with manual overwrite in case of negative local vol
+
+%{
+using QuantLib::NoExceptLocalVolSurface;
+typedef boost::shared_ptr<LocalVolTermStructure> NoExceptLocalVolSurfacePtr;
+%}
+%rename(NoExceptLocalVolSurface) NoExceptLocalVolSurfacePtr;
+class NoExceptLocalVolSurfacePtr : public boost::shared_ptr<LocalVolTermStructure> {
+    public:
+     %extend {
+        NoExceptLocalVolSurfacePtr(const Handle<BlackVolTermStructure>& blackTS,
+                        const Handle<YieldTermStructure>& riskFreeTS,
+                        const Handle<YieldTermStructure>& dividendTS,
+                        const Handle<Quote>&              underlying,
+                        Real                              illegalLocalVolOverwrite) {
+            return new NoExceptLocalVolSurfacePtr(
+                new NoExceptLocalVolSurface(blackTS, riskFreeTS, dividendTS, underlying, illegalLocalVolOverwrite));
+        
+        }
+        NoExceptLocalVolSurfacePtr(const Handle<BlackVolTermStructure>& blackTS,
+                        const Handle<YieldTermStructure>& riskFreeTS,
+                        const Handle<YieldTermStructure>& dividendTS,
+                        Real                              underlying,
+                        Real                              illegalLocalVolOverwrite) {
+            return new NoExceptLocalVolSurfacePtr(
+                new NoExceptLocalVolSurface(blackTS, riskFreeTS, dividendTS, underlying, illegalLocalVolOverwrite));
         }
     }
 };
@@ -868,7 +896,10 @@ export_smileinterpolation_curve(SplineCubicInterpolatedSmileSection, SplineCubic
 
 %{
 using QuantLib::SabrSmileSection;
+using QuantLib::SabrInterpolatedSmileSection;
 typedef boost::shared_ptr<SmileSection> SabrSmileSectionPtr;
+typedef boost::shared_ptr<SmileSection> SabrInterpolatedSmileSectionPtr;
+
 %}
 
 %rename(SabrSmileSection) SabrSmileSectionPtr;
@@ -908,6 +939,84 @@ class SabrSmileSectionPtr
         }
     }
 };
+
+
+%rename(SabrInterpolatedSmileSection) SabrInterpolatedSmileSectionPtr;
+class SabrInterpolatedSmileSectionPtr : public boost::shared_ptr<SmileSection> {
+  public:
+    %extend {
+        SabrInterpolatedSmileSectionPtr(
+               const Date &optionDate, const Handle<Quote> &forward,
+               const std::vector<Rate> &strikes, bool hasFloatingStrikes,
+               const Handle<Quote> &atmVolatility,
+               const std::vector<Handle<Quote> > &volHandles, Real alpha, Real beta,
+               Real nu, Real rho, bool isAlphaFixed = false,
+               bool isBetaFixed = false, bool isNuFixed = false,
+               bool isRhoFixed = false,
+               bool vegaWeighted = true,
+               const boost::shared_ptr<EndCriteria> &endCriteria =
+               boost::shared_ptr<EndCriteria>(),
+               const boost::shared_ptr<OptimizationMethod> &method =
+               boost::shared_ptr<OptimizationMethod>(),
+               const DayCounter &dc = Actual365Fixed()) {
+            return new SabrInterpolatedSmileSectionPtr(
+                new SabrInterpolatedSmileSection(
+                          optionDate, forward, strikes, hasFloatingStrikes, atmVolatility,
+                          volHandles, alpha, beta, nu, rho, isAlphaFixed,
+                          isBetaFixed, isNuFixed, isRhoFixed, vegaWeighted,
+                          endCriteria, method, dc));
+        }
+        SabrInterpolatedSmileSectionPtr(
+               const Date &optionDate, const Rate &forward,
+               const std::vector<Rate> &strikes, bool hasFloatingStrikes,
+               const Volatility &atmVolatility, const std::vector<Volatility> &vols,
+               Real alpha, Real beta, Real nu, Real rho,
+               bool isAlphaFixed = false, bool isBetaFixed = false,
+               bool isNuFixed = false, bool isRhoFixed = false,
+               bool vegaWeighted = true,
+               const boost::shared_ptr<EndCriteria> &endCriteria =
+               boost::shared_ptr<EndCriteria>(),
+               const boost::shared_ptr<OptimizationMethod> &method =
+               boost::shared_ptr<OptimizationMethod>(),
+               const DayCounter &dc = Actual365Fixed()) {
+            return new SabrInterpolatedSmileSectionPtr(
+                new SabrInterpolatedSmileSection(
+                          optionDate, forward, strikes, hasFloatingStrikes, atmVolatility,
+                          vols, alpha, beta, nu, rho, isAlphaFixed,
+                          isBetaFixed, isNuFixed, isRhoFixed, vegaWeighted,
+                          endCriteria, method, dc));
+        }
+        Real alpha() const {
+            return boost::dynamic_pointer_cast<SabrInterpolatedSmileSection>(*self)
+                ->alpha();
+        }
+        Real beta() const {
+            return boost::dynamic_pointer_cast<SabrInterpolatedSmileSection>(*self)
+                ->beta();
+        }
+        Real nu() const {
+            return boost::dynamic_pointer_cast<SabrInterpolatedSmileSection>(*self)
+                ->nu();
+        }
+        Real rho() const {
+            return boost::dynamic_pointer_cast<SabrInterpolatedSmileSection>(*self)
+                ->rho();
+        }
+        Real rmsError() const {
+            return boost::dynamic_pointer_cast<SabrInterpolatedSmileSection>(*self)
+                ->rmsError();
+        }
+        Real maxError() const {
+            return boost::dynamic_pointer_cast<SabrInterpolatedSmileSection>(*self)
+                ->maxError();
+        }
+        EndCriteria::Type endCriteria() const {
+            return boost::dynamic_pointer_cast<SabrInterpolatedSmileSection>(*self)
+                ->endCriteria();
+        }
+    }
+};
+
 
 %{
 using QuantLib::KahaleSmileSection;
@@ -1199,5 +1308,50 @@ class NoArbSabrInterpolatedSmileSectionPtr : public boost::shared_ptr<SmileSecti
         }
     }
 };
+
+
+// BlackVariance term structure based on interpolated smile sections
+
+// We need vector of SmileSections as input
+namespace std {
+    %template(SmileSectionVector) vector<boost::shared_ptr<SmileSection> >;
+}
+
+
+%{
+using QuantLib::SmiledSurface;
+typedef boost::shared_ptr<BlackVolTermStructure> SmiledSurfacePtr;
+%}
+
+%rename(SmiledSurface) SmiledSurfacePtr;
+class SmiledSurfacePtr : public boost::shared_ptr<BlackVolTermStructure> {
+  public:
+    %extend {
+        SmiledSurfacePtr(
+            const std::vector<boost::shared_ptr<SmileSection>>  smiles,
+            BusinessDayConvention    bdc = Following,
+            const DayCounter&        dc = DayCounter()) {
+            return new SmiledSurfacePtr(new SmiledSurface(smiles,bdc,dc));
+        }
+        SmiledSurfacePtr(
+            const std::vector<boost::shared_ptr<SmileSection>>  smiles,
+			const Date&              referenceDate,
+            const Calendar&          cal,
+            BusinessDayConvention    bdc = Following,
+            const DayCounter&        dc = DayCounter()) {
+            return new SmiledSurfacePtr(new SmiledSurface(smiles,referenceDate,cal,bdc,dc));
+        }
+        SmiledSurfacePtr(
+            const std::vector<boost::shared_ptr<SmileSection>>  smiles,
+			Natural                  settlementDays,
+            const Calendar&          cal,
+            BusinessDayConvention    bdc = Following,
+            const DayCounter&        dc = DayCounter()) {
+            return new SmiledSurfacePtr(new SmiledSurface(smiles,settlementDays,cal,bdc,dc));
+        }
+    }
+};
+
+
 
 #endif
