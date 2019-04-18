@@ -742,6 +742,7 @@ class SmileSection{
 
     Real variance(Rate strike) const;
     Volatility volatility(Rate strike) const;
+    virtual Real atmLevel() const;
     virtual const Date& exerciseDate() const;
     virtual VolatilityType volatilityType() const;
     virtual Rate shift() const;
@@ -1352,6 +1353,16 @@ class SmiledSurfacePtr : public boost::shared_ptr<BlackVolTermStructure> {
     }
 };
 
+
+// We add a wrapper function here because we don't want to change the order of classes in this file
+%inline %{
+    boost::shared_ptr<SmileSection> SmileSectionFromSwaptionVTS(
+            const boost::shared_ptr<SwaptionVolatilityStructure>   volTS,
+            const Time                                             optionTime,
+            const Time                                             swapLength) {
+        return volTS->smileSection(optionTime, swapLength);
+    }
+%}
 
 
 #endif
