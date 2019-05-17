@@ -35,6 +35,7 @@
 using QuantLib::RealStochasticProcess;
 using QuantLib::RealMCSimulation;
 using QuantLib::RealMCPayoff;
+using QuantLib::RealMCBase;
 using QuantLib::RealMCRates;
 using QuantLib::RealAMCPricer;
 %}
@@ -209,7 +210,7 @@ public:
     %extend{
 	    RealMCClonePtr(const boost::shared_ptr<RealMCPayoff>&   x,
 		               const Time                               observationTime) {
-            return new RealMCClonePtr(new RealMCPayoff::Clone(x,observationTime));
+            return new RealMCClonePtr(new RealMCBase::Clone(x,observationTime));
         }
     }
 };
@@ -220,7 +221,7 @@ class RealMCFixedAmountPtr : public boost::shared_ptr<RealMCPayoff> {
 public:
     %extend{
 	    RealMCFixedAmountPtr(const Real amount) {
-            return new RealMCFixedAmountPtr(new RealMCPayoff::FixedAmount(amount));
+            return new RealMCFixedAmountPtr(new RealMCBase::FixedAmount(amount));
         }
     }
 };
@@ -232,7 +233,7 @@ public:
     %extend{
     	RealMCPayPtr(const boost::shared_ptr<RealMCPayoff>&  x,
 			         const Time                              payTime) {
-            return new RealMCPayPtr(new RealMCPayoff::Pay(x,payTime));
+            return new RealMCPayPtr(new RealMCBase::Pay(x,payTime));
         }
     }
 };
@@ -243,7 +244,7 @@ class RealMCCashPtr : public boost::shared_ptr<RealMCPayoff> {
 public:
     %extend{
 		RealMCCashPtr(Time obsTime, Time payTime) {
-            return new RealMCPayPtr(new RealMCPayoff::Cash(obsTime,payTime));
+            return new RealMCPayPtr(new RealMCBase::Cash(obsTime,payTime));
         } 
     }
 };
@@ -254,7 +255,7 @@ class RealMCAssetPtr : public boost::shared_ptr<RealMCPayoff> {
 public:
     %extend{
 		RealMCAssetPtr(Time obsTime, const std::string alias) {
-            return new RealMCAssetPtr(new RealMCPayoff::Asset(obsTime,alias));
+            return new RealMCAssetPtr(new RealMCBase::Asset(obsTime,alias));
         }
     }
 };
@@ -265,7 +266,7 @@ class RealMCAssetBarrierNoHitPtr : public boost::shared_ptr<RealMCPayoff> {
 public:
     %extend{
 		RealMCAssetBarrierNoHitPtr(Time tStart, Time tEnd, Real downBarrier, Real upBarrier, Real downOrUpOrBoth, const std::string alias) {
-            return new RealMCAssetBarrierNoHitPtr(new RealMCPayoff::AssetBarrierNoHit(tStart,tEnd,downBarrier,upBarrier,downOrUpOrBoth,alias));
+            return new RealMCAssetBarrierNoHitPtr(new RealMCBase::AssetBarrierNoHit(tStart,tEnd,downBarrier,upBarrier,downOrUpOrBoth,alias));
         }
     }
 };
@@ -276,7 +277,7 @@ class RealMCVanillaOptionPtr : public boost::shared_ptr<RealMCPayoff> {
 public:
     %extend{
 		RealMCVanillaOptionPtr(Time obsTime, const std::string alias, Real strike, Real callOrPut) {
-            return new RealMCVanillaOptionPtr(new RealMCPayoff::VanillaOption(obsTime,alias,strike,callOrPut));
+            return new RealMCVanillaOptionPtr(new RealMCBase::VanillaOption(obsTime,alias,strike,callOrPut));
         }
     }
 };
@@ -287,7 +288,7 @@ class RealMCCachePtr : public boost::shared_ptr<RealMCPayoff> {
 public:
     %extend{
 		RealMCCachePtr(const boost::shared_ptr<RealMCPayoff>& x) {
-            return new RealMCCachePtr(new RealMCPayoff::Cache(x));
+            return new RealMCCachePtr(new RealMCBase::Cache(x));
         }
     }
 };
@@ -302,7 +303,7 @@ public:
         RealMCAxpyPtr(const Real                             a,
 		              const boost::shared_ptr<RealMCPayoff>& x,
 		              const boost::shared_ptr<RealMCPayoff>& y) {
-            return new RealMCAxpyPtr(new RealMCPayoff::Axpy(a,x,y));                      
+            return new RealMCAxpyPtr(new RealMCBase::Axpy(a,x,y));                      
         }
     }    
 };
@@ -314,7 +315,7 @@ public:
     %extend {
         RealMCMultPtr(const boost::shared_ptr<RealMCPayoff>& x,
 		              const boost::shared_ptr<RealMCPayoff>& y) {
-            return new RealMCMultPtr(new RealMCPayoff::Mult(x,y));                      
+            return new RealMCMultPtr(new RealMCBase::Mult(x,y));                      
         }
     }    
 };
@@ -326,7 +327,7 @@ public:
     %extend {
         RealMCDivisionPtr(const boost::shared_ptr<RealMCPayoff>& x,
 		                  const boost::shared_ptr<RealMCPayoff>& y) {
-            return new RealMCDivisionPtr(new RealMCPayoff::Division(x,y));                      
+            return new RealMCDivisionPtr(new RealMCBase::Division(x,y));                      
         }
     }    
 };
@@ -338,7 +339,7 @@ public:
     %extend {
         RealMCMaxPtr(const boost::shared_ptr<RealMCPayoff>& x,
 		             const boost::shared_ptr<RealMCPayoff>& y) {
-            return new RealMCMaxPtr(new RealMCPayoff::Max(x,y));                      
+            return new RealMCMaxPtr(new RealMCBase::Max(x,y));                      
         }
     }    
 };
@@ -350,7 +351,7 @@ public:
     %extend {
         RealMCMinPtr(const boost::shared_ptr<RealMCPayoff>& x,
 		             const boost::shared_ptr<RealMCPayoff>& y) {
-            return new RealMCMinPtr(new RealMCPayoff::Min(x,y));                      
+            return new RealMCMinPtr(new RealMCBase::Min(x,y));                      
         }
     }    
 };
@@ -363,7 +364,7 @@ public:
         RealMCLogicalPtr(const boost::shared_ptr<RealMCPayoff>& x,
 		                 const boost::shared_ptr<RealMCPayoff>& y,
                          const std::string&                     op) {
-            return new RealMCLogicalPtr(new RealMCPayoff::Logical(x,y,op));                      
+            return new RealMCLogicalPtr(new RealMCBase::Logical(x,y,op));                      
         }
     }    
 };
@@ -377,7 +378,7 @@ public:
 		              const boost::shared_ptr<RealMCPayoff>& x,
 		              const boost::shared_ptr<RealMCPayoff>& y,
                       const boost::shared_ptr<RealMCPayoff>& z) {
-            return new RealMCIfThenElsePtr(new RealMCPayoff::IfThenElse(x,y,z));                      
+            return new RealMCIfThenElsePtr(new RealMCBase::IfThenElse(x,y,z));                      
         }
     }    
 };
@@ -391,7 +392,7 @@ public:
             const std::vector<boost::shared_ptr<RealMCPayoff> >& underlyings,
 		    const std::vector<Real>                              weights,
 				bool                                             rainbow) {
-            return new RealMCBasketPtr(new RealMCPayoff::Basket(underlyings,weights,rainbow));                      
+            return new RealMCBasketPtr(new RealMCBase::Basket(underlyings,weights,rainbow));                      
         }
     }    
 };
