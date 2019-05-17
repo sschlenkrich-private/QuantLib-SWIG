@@ -453,6 +453,58 @@ class NoExceptLocalVolSurfacePtr : public boost::shared_ptr<LocalVolTermStructur
 };
 
 
+// set up interpolated local vol term structure from data
+
+%{
+using QuantLib::FixedLocalVolSurface;
+typedef boost::shared_ptr<LocalVolTermStructure> FixedLocalVolSurfacePtr;
+%}
+%rename(FixedLocalVolSurface) FixedLocalVolSurfacePtr;
+class FixedLocalVolSurfacePtr : public boost::shared_ptr<LocalVolTermStructure> {
+    public:
+     %extend {
+        // we adjust the interface constructor to simplify set up in target languages
+        FixedLocalVolSurfacePtr(
+            const Date&                     referenceDate,
+            const std::vector<Time>&        times,
+            const Matrix&                   strikeMatrix,    // M[strikeIdx][timeIdx]            
+            const Matrix&                   localVolMatrix,  // V[strikeIdx][timeIdx]
+            const DayCounter&               dayCounter ) {
+            // we need to prepare strikes to match QL's interface
+            QL_REQUIRE(times.size()==strikeMatrix.columns(), "mismatch between time vector and strike colums");
+            std::vector<boost::shared_ptr<std::vector<Real> > > strikes(times.size());
+            // the bespoke interface requires initialising each element individually
+            for (Size k=0; k<strikes.size(); ++k) {
+                strikes[k] = boost::shared_ptr<std::vector<Real> >(new std::vector<Real>(strikeMatrix.rows()));
+                for (Size i=0; i<strikes[k]->size(); ++i) strikes[k]->at(i) = strikeMatrix[i][k];
+            }
+            // we hard-code linear interpolation and flat extrapolation with this interface
+            return new FixedLocalVolSurfacePtr(
+                new FixedLocalVolSurface(referenceDate, times, strikes, boost::make_shared<Matrix>(localVolMatrix),dayCounter));
+        }
+
+        // wrap C++ object back into SWIG object
+        FixedLocalVolSurfacePtr( const boost::shared_ptr<LocalVolTermStructure>&  lVolTS ) {
+            boost::shared_ptr<FixedLocalVolSurface> resVolTS = boost::dynamic_pointer_cast<FixedLocalVolSurface>(lVolTS);
+            QL_REQUIRE(resVolTS, "FixedLocalVolSurface required");
+            return new FixedLocalVolSurfacePtr( resVolTS );
+        }
+        
+		// inspectors
+        const std::vector<Time> times() {
+            return boost::dynamic_pointer_cast<FixedLocalVolSurface>(*self)->times();
+        }
+        const Matrix strikeMatrix() {
+            return boost::dynamic_pointer_cast<FixedLocalVolSurface>(*self)->strikeMatrix();        
+        }        
+        const Matrix localVolMatrix() {
+            return boost::dynamic_pointer_cast<FixedLocalVolSurface>(*self)->localVolMatrix();        
+        }        
+        
+    }
+};
+
+
 // constant caplet constant term structure
 %{
 using QuantLib::ConstantOptionletVolatility;
