@@ -1,5 +1,5 @@
 # Process this file with autoconf to produce a configure script.
-AC_INIT([QuantLib-SWIG], [1.16],
+AC_INIT([QuantLib-SWIG], [1.17],
         [quantlib-dev@lists.sourceforge.net],
         [QuantLib-SWIG])
 AC_PREREQ(2.50)
@@ -56,16 +56,6 @@ AC_ARG_ENABLE([python],
               [build_python=$enableval],
               [build_python=yes])
 AM_CONDITIONAL(BUILD_PYTHON, test "$build_python" != "no")
-
-AC_PATH_PROG([PERL], [perl])
-AM_CONDITIONAL(HAVE_PERL, test "x${PERL}" != "x")
-AC_ARG_ENABLE([perl],
-              AC_HELP_STRING([--disable-perl],
-                             [If disabled, the Perl module
-                              will not be built]),
-              [build_perl=$enableval],
-              [build_perl=yes])
-AM_CONDITIONAL(BUILD_PERL, test "$build_perl" != "no")
 
 AC_PATH_PROG([RUBY], [ruby])
 AM_CONDITIONAL(HAVE_RUBY, test "x${RUBY}" != "x")
@@ -151,6 +141,17 @@ if test [ -n "$ql_jdk_sys_include_path" ] ; then
 fi
 
 
+AC_PATH_PROG([SCALAC], [scalac])
+AC_PATH_PROG([SCALA], [scala])
+AM_CONDITIONAL(HAVE_SCALA, test "x${SCALAC}" != "x" && test "x${JAR}" != "x")
+AC_ARG_ENABLE([scala],
+              AC_HELP_STRING([--disable-scala],
+                             [If disabled, the scala examples
+                              will not be built]),
+              [build_scala=$enableval],
+              [build_scala=yes])
+AM_CONDITIONAL(BUILD_SCALA, test "$build_scala" != "no")
+
 # flags
 
 case "$target" in
@@ -168,8 +169,6 @@ AC_CONFIG_FILES([
     Makefile
     CSharp/Makefile
     Java/Makefile
-    Perl/Makefile
-    Perl/Makefile.PL
     Python/Makefile
     Python/setup.py
     R/Makefile
