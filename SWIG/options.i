@@ -310,49 +310,6 @@ class PiecewiseTimeDependentHestonModel : public CalibratedModel {
 
 };
 
-// Heston Local-Stochastic-Volatility Model
-
-%{
-using QuantLib::HestonSLVMCModel;
-%}
-
-%template(HestonSLVMCModelBase) boost::shared_ptr<HestonSLVMCModel>;
-
-%{
-typedef boost::shared_ptr<HestonSLVMCModel> HestonSLVMCModelPtr;
-%}
-
-%rename(HestonSLVMCModel) HestonSLVMCModelPtr;
-class HestonSLVMCModelPtr : public boost::shared_ptr<HestonSLVMCModel> {
-  public:
-    %extend {
-		HestonSLVMCModelPtr(
-            const Handle<LocalVolTermStructure>&    localVol,
-            const HestonModelPtr&                   model,
-            const Date&                             endDate,
-            const Size                              timeStepsPerYear = 365,
-            const Size                              nBins = 201,
-            const Size                              calibrationPaths = (1 << 15),
-            const std::vector<Date>&                mandatoryDates = std::vector<Date>(),
-            const unsigned long                     seed = 0) {
-            boost::shared_ptr<HestonModel> hestonModel = boost::dynamic_pointer_cast<HestonModel>(model);
-            QL_REQUIRE(hestonModel, "Heston model required");                        
-            // for convenience we hard-code the use of MersenneTwister-based BM generator
-            return new HestonSLVMCModelPtr(
-                new HestonSLVMCModel( localVol, Handle<HestonModel>(hestonModel), boost::shared_ptr<QuantLib::BrownianGeneratorFactory>(
-				new QuantLib::MTBrownianGeneratorFactory(seed)), endDate, timeStepsPerYear, nBins, calibrationPaths, mandatoryDates) );
-        }
-        
-        boost::shared_ptr<LocalVolTermStructure> leverageFunction() { 
-            return boost::dynamic_pointer_cast<HestonSLVMCModel>(*self)->leverageFunction();
-        }
-
-
-    }    
-};
-
-
-
 
 %{
 using QuantLib::AnalyticHestonEngine;
@@ -1959,60 +1916,6 @@ class FdSimpleExtOUJumpSwingEngine : public PricingEngine {
         }
     }
 };
-
-// Finite difference Heston engines
-
-%{
-using QuantLib::FdHestonVanillaEngine;
-typedef boost::shared_ptr<PricingEngine> FdHestonVanillaEnginePtr;
-%}
-
-%rename(FdHestonVanillaEngine) FdHestonVanillaEnginePtr;
-class FdHestonVanillaEnginePtr : public boost::shared_ptr<PricingEngine> {
-  public:
-    %extend {
-        FdHestonVanillaEnginePtr(
-            const HestonModelPtr&     model,
-            const Size                tGrid = 100,
-            const Size                xGrid = 100, 
-            const Size                vGrid = 50,
-            const Size                dampingSteps = 0,
-            const FdmSchemeDesc&      schemeDesc = FdmSchemeDesc::Hundsdorfer(),
-            const boost::shared_ptr<LocalVolTermStructure>& leverageFct = boost::shared_ptr<LocalVolTermStructure>() ) {
-            boost::shared_ptr<HestonModel> hestonModel = boost::dynamic_pointer_cast<HestonModel>(model);
-            QL_REQUIRE(hestonModel, "Heston model required");
-            return new FdHestonVanillaEnginePtr(
-                new FdHestonVanillaEngine( hestonModel,tGrid,xGrid,vGrid,dampingSteps,schemeDesc,leverageFct));
-        }
-    }
-};
-
-%{
-using QuantLib::FdHestonBarrierEngine;
-typedef boost::shared_ptr<PricingEngine> FdHestonBarrierEnginePtr;
-%}
-
-%rename(FdHestonBarrierEngine) FdHestonBarrierEnginePtr;
-class FdHestonBarrierEnginePtr : public boost::shared_ptr<PricingEngine> {
-  public:
-    %extend {
-        FdHestonBarrierEnginePtr(
-            const HestonModelPtr&     model,
-            const Size                tGrid = 100,
-            const Size                xGrid = 100, 
-            const Size                vGrid = 50,
-            const Size                dampingSteps = 0,
-            const FdmSchemeDesc&      schemeDesc = FdmSchemeDesc::Hundsdorfer(),
-            const boost::shared_ptr<LocalVolTermStructure>& leverageFct = boost::shared_ptr<LocalVolTermStructure>() ) {
-            boost::shared_ptr<HestonModel> hestonModel = boost::dynamic_pointer_cast<HestonModel>(model);
-            QL_REQUIRE(hestonModel, "Heston model required");            
-            return new FdHestonBarrierEnginePtr(
-                            new FdHestonBarrierEngine( hestonModel,tGrid,xGrid,vGrid,dampingSteps,schemeDesc,leverageFct));
-        }
-    }
-};
-
-
 
 
 #endif

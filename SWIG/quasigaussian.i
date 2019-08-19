@@ -180,7 +180,7 @@ class QGCalibratorPtr : public boost::shared_ptr<QGCalibrator> {
         QGCalibratorPtr(
 		    const QuasiGaussianModelPtr&                model,
 			const Handle<SwaptionVolatilityStructure>&  volTS,
-			const std::vector< SwapIndexPtr >&          swapIndices,
+			const std::vector< boost::shared_ptr<SwapIndex> >&  swapIndices,
 			const Real                                  modelTimesStepSize,
             const bool                                  useExpectedXY,
             const Real                                  sigmaMax,
@@ -230,7 +230,7 @@ class QGMonteCarloCalibratorPtr : public boost::shared_ptr<QGMonteCarloCalibrato
         QGMonteCarloCalibratorPtr(
 		    const QuasiGaussianModelPtr&                model,
 			const Handle<SwaptionVolatilityStructure>&  volTS,
-			const std::vector< SwapIndexPtr >&          swapIndices,
+			const std::vector< boost::shared_ptr<SwapIndex> >&  swapIndices,
 			const Real                                  monteCarloStepSize,
             const Size                                  monteCarloPaths,
             const Real                                  sigmaMax,
@@ -288,7 +288,7 @@ class QGLocalvolModelPtr : public boost::shared_ptr<QGLocalvolModel> {
 			const Real                                             chi,               // 0.03
 			const Real                                             theta,             // 0.1
 			const Real                                             eta,               // 0.7
-			const SwapIndexPtr&                                    swapIndex,         // EuriborSwapIsdaFixA
+			const boost::shared_ptr<SwapIndex>&                    swapIndex,         // EuriborSwapIsdaFixA
 			const std::vector<Real>&                               times,             // [1.0,2.0,..,10.0]
 			const std::vector<Real>&                               stdDevGrid,        // [-3.0, ..., 3.0] (for non-SLV models) or [] (for SLV model)
 			const size_t                                           nStrikes,          // 101 or 201 (only for SLV model)

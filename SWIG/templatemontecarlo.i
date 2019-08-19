@@ -430,7 +430,7 @@ public:
         }
         RealMCSwaptionPtr(
             Time                               obsTime,    // observation equals fixing time
-			const SwapIndexPtr&                index,
+			const boost::shared_ptr<SwapIndex>&  index,
 			const Handle<YieldTermStructure>&  discYTSH,
 			Real                               strikeRate,
 			Real                               payOrRec ) {
@@ -457,7 +457,7 @@ public:
         }
         RealMCSwapRatePtr(
             Time                               obsTime,    // observation equals fixing time
-			const SwapIndexPtr&                index,
+			const boost::shared_ptr<SwapIndex>& index,
 			const Handle<YieldTermStructure>&  discYTSH ) {
             boost::shared_ptr<SwapIndex> swapIdx =  boost::dynamic_pointer_cast<SwapIndex>(index);
             return new RealMCSwapRatePtr(new RealMCRates::SwapRate(obsTime,swapIdx,discYTSH));
@@ -472,7 +472,7 @@ public:
     %extend {
         RealMCLiborRatePtr(
             Time                               obsTime,    // observation equals fixing time
-			const IborIndexPtr&                index,
+			const boost::shared_ptr<IborIndex>& index,
 			const Handle<YieldTermStructure>&  discYTSH ) {
             boost::shared_ptr<IborIndex> iborIdx =  boost::dynamic_pointer_cast<IborIndex>(index);
             return new RealMCLiborRatePtr(new RealMCRates::LiborRate(obsTime,iborIdx,discYTSH));

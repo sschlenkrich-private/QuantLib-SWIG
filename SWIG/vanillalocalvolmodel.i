@@ -44,23 +44,22 @@ using QuantLib::VanillaLocalVolSwaptionVTS;
 %}
 
 // we need to tell SWIG to export shared_ptr with new classes
-%template(VanillaLocalVolModelBase) boost::shared_ptr<VanillaLocalVolModel>;
-%template(VanillaLocalVolModelSmileSectionBase) boost::shared_ptr<VanillaLocalVolModelSmileSection>;
+// %template(VanillaLocalVolModelBase) boost::shared_ptr<VanillaLocalVolModel>;
+// %template(VanillaLocalVolModelSmileSectionBase) boost::shared_ptr<VanillaLocalVolModelSmileSection>;
 
 // we need to tell C++ that our new pointer-based classes are type names
-%{
-typedef boost::shared_ptr<VanillaLocalVolModel> VanillaLocalVolModelPtr;
-typedef boost::shared_ptr<VanillaLocalVolModelSmileSection> VanillaLocalVolModelSmileSectionPtr;
-typedef boost::shared_ptr<VanillaLocalVolSwaptionVTS> VanillaLocalVolSwaptionVTSPtr;
-%}
+// %{
+// typedef boost::shared_ptr<VanillaLocalVolModel> VanillaLocalVolModelPtr;
+// typedef boost::shared_ptr<VanillaLocalVolModelSmileSection> VanillaLocalVolModelSmileSectionPtr;
+// typedef boost::shared_ptr<VanillaLocalVolSwaptionVTS> VanillaLocalVolSwaptionVTSPtr;
+// %}
 
 // we use an object adapter pattern to extend base class interface by new underlying class methods 
 
-%rename(VanillaLocalVolModel) VanillaLocalVolModelPtr;
-class VanillaLocalVolModelPtr : public boost::shared_ptr<VanillaLocalVolModel> {
+%shared_ptr(VanillaLocalVolModel)
+class VanillaLocalVolModel {
   public:
-    %extend {
-        VanillaLocalVolModelPtr(
+        VanillaLocalVolModel(
 			const Time                T,
 			const Real                S0,
 			const Real                sigmaATM,
@@ -74,58 +73,46 @@ class VanillaLocalVolModelPtr : public boost::shared_ptr<VanillaLocalVolModel> {
 			const bool                adjustATMFlag = true,
 			const bool                enableLogging = false,
 			const bool                useInitialMu  = false,
-			const Real                initialMu     = 0.0 ) {        
-            return new VanillaLocalVolModelPtr(
-                new VanillaLocalVolModel(T,S0,sigmaATM,Sp,Sm,Mp,Mm,maxCalibrationIters,onlyForwardCalibrationIters,
-                                         adjustATMFlag,enableLogging,useInitialMu,initialMu));
-        }
-
-        // wrap C++ object back into SWIG object
-        VanillaLocalVolModelPtr( const boost::shared_ptr<VanillaLocalVolModel>&  model ) {
-            return new VanillaLocalVolModelPtr( model );
-        }
+			const Real                initialMu     = 0.0 );
         
 		// inspectors
-		const std::vector<std::string> logging() { return boost::dynamic_pointer_cast<VanillaLocalVolModel>(*self)->logging()     ;}
-		const Time timeToExpiry()        { return boost::dynamic_pointer_cast<VanillaLocalVolModel>(*self)->timeToExpiry()        ;}
-		const Real forward()             { return boost::dynamic_pointer_cast<VanillaLocalVolModel>(*self)->forward()             ;}
-		const Real sigmaATM()            { return boost::dynamic_pointer_cast<VanillaLocalVolModel>(*self)->sigmaATM()            ;}
-		const Real alpha()               { return boost::dynamic_pointer_cast<VanillaLocalVolModel>(*self)->alpha()               ;}
-		const Real mu()                  { return boost::dynamic_pointer_cast<VanillaLocalVolModel>(*self)->mu()                  ;}
-		const Real nu()                  { return boost::dynamic_pointer_cast<VanillaLocalVolModel>(*self)->nu()                  ;}
-		const Size maxCalibrationIters() { return boost::dynamic_pointer_cast<VanillaLocalVolModel>(*self)->maxCalibrationIters() ;}
-		const Size onlyForwardCalibrationIters() { return boost::dynamic_pointer_cast<VanillaLocalVolModel>(*self)->onlyForwardCalibrationIters(); }
-		const bool adjustATMFlag()       { return boost::dynamic_pointer_cast<VanillaLocalVolModel>(*self)->adjustATMFlag()       ;}
-		const bool enableLogging()       { return boost::dynamic_pointer_cast<VanillaLocalVolModel>(*self)->enableLogging()       ;}
-		const bool useInitialMu()        { return boost::dynamic_pointer_cast<VanillaLocalVolModel>(*self)->useInitialMu()        ;}
-		const Real initialMu()           { return boost::dynamic_pointer_cast<VanillaLocalVolModel>(*self)->initialMu()           ;}
+		const std::vector<std::string> logging();
+		const Time timeToExpiry()       ;
+		const Real forward()            ;
+		const Real sigmaATM()           ;
+		const Real alpha()              ;
+		const Real mu()                 ;
+		const Real nu()                 ;
+		const Size maxCalibrationIters();
+		const Size onlyForwardCalibrationIters(); 
+		const bool adjustATMFlag()      ;
+		const bool enableLogging()      ;
+		const bool useInitialMu()       ;
+		const Real initialMu()          ;
         
 		// attributes in more convenient single-vector format
-		const std::vector<Real> underlyingX()   { return boost::dynamic_pointer_cast<VanillaLocalVolModel>(*self)->underlyingX()  ;}
-		const std::vector<Real> underlyingS()   { return boost::dynamic_pointer_cast<VanillaLocalVolModel>(*self)->underlyingS()  ;}
-		const std::vector<Real> localVol()      { return boost::dynamic_pointer_cast<VanillaLocalVolModel>(*self)->localVol()     ;}
-		const std::vector<Real> localVolSlope() { return boost::dynamic_pointer_cast<VanillaLocalVolModel>(*self)->localVolSlope();}
+		const std::vector<Real> underlyingX()   ;
+		const std::vector<Real> underlyingS()   ;
+		const std::vector<Real> localVol()      ;
+		const std::vector<Real> localVolSlope() ;
         
 		// model function evaluations
-		const Real localVol(Real S)    { return boost::dynamic_pointer_cast<VanillaLocalVolModel>(*self)->localVol(S)    ;}
-		const Real underlyingS(Real x) { return boost::dynamic_pointer_cast<VanillaLocalVolModel>(*self)->underlyingS(x) ;}
+		const Real localVol(Real S)    ;
+		const Real underlyingS(Real x) ;
         
 		//calculating expectations - that is the actual purpose of that model
         
 		// calculate the forward price of an OTM option
-		const Real expectation(bool isRightWing, Real strike) { return boost::dynamic_pointer_cast<VanillaLocalVolModel>(*self)->expectation(isRightWing, strike); }
+		const Real expectation(bool isRightWing, Real strike); 
         
 		// calculate the forward price of an OTM power option with payoff 1_{S>K}(S-K)^2
-		const Real variance(bool isRightWing, Real strike) { return boost::dynamic_pointer_cast<VanillaLocalVolModel>(*self)->variance(isRightWing, strike); }
-    }    
+		const Real variance(bool isRightWing, Real strike); 
 };
 
-%rename(VanillaLocalVolModelSmileSection) VanillaLocalVolModelSmileSectionPtr;
-class VanillaLocalVolModelSmileSectionPtr : public boost::shared_ptr<SmileSection>,
-                                            public boost::shared_ptr<VanillaLocalVolModelSmileSection> {
+%shared_ptr(VanillaLocalVolModelSmileSection)
+class VanillaLocalVolModelSmileSection : public SmileSection {
   public:
-    %extend {
-		VanillaLocalVolModelSmileSectionPtr(
+		VanillaLocalVolModelSmileSection(
 			const Date&                                   expiryDate,
 			const Rate&                                   forward,
 			const std::vector<Rate>&                      relativeStrikes,
@@ -142,14 +129,9 @@ class VanillaLocalVolModelSmileSectionPtr : public boost::shared_ptr<SmileSectio
 			const boost::shared_ptr<VanillaLocalVolModel>&  model = boost::shared_ptr<VanillaLocalVolModel>(),
 			const Real                                    minSlope = -3.0,   //  lower boundary for m in calibration
 			const Real                                    maxSlope =  3.0,   //  upper boundary for m in calibration
-			const Real                                    alpha = 1.0e-4) {  //  Tikhonov alpha
-            return new VanillaLocalVolModelSmileSectionPtr(
-                new VanillaLocalVolModelSmileSection(expiryDate,forward,relativeStrikes,smileVolatilities,
-                    extrapolationRelativeStrike,extrapolationSlope,vegaWeighted,endCriteria,method,dc,
-                    referenceDate,type,shift,model,minSlope,maxSlope,alpha) );
-        }
+			const Real                                    alpha = 1.0e-4);   //  Tikhonov alpha
         
-		VanillaLocalVolModelSmileSectionPtr(
+		VanillaLocalVolModelSmileSection(
 			const Date&                                   expiryDate,
 			const Rate&                                   forward,
 			const Volatility&                             atmVolatility,
@@ -160,15 +142,10 @@ class VanillaLocalVolModelSmileSectionPtr : public boost::shared_ptr<SmileSectio
 			const DayCounter&                             dc = Actual365Fixed(),
 			const Date&                                   referenceDate = Date(),
 			const VolatilityType                          type = Normal,
-			const Rate                                    shift = 0.0) {
-            return new VanillaLocalVolModelSmileSectionPtr(
-                new VanillaLocalVolModelSmileSection(expiryDate,forward,atmVolatility,smile1,smile2,rho,
-                    calcSimple,dc,referenceDate,type,shift) );            
-        }
+			const Rate                                    shift = 0.0); 
 
-        const boost::shared_ptr<VanillaLocalVolModel>&  model() const { return boost::dynamic_pointer_cast<VanillaLocalVolModelSmileSection>(*self)->model(); }
+        const boost::shared_ptr<VanillaLocalVolModel>&  model();
 
-    }    
 };
 
 
@@ -178,20 +155,14 @@ namespace std {
 }
 
 
-%rename(VanillaLocalVolSwaptionVTS) VanillaLocalVolSwaptionVTSPtr;
-class VanillaLocalVolSwaptionVTSPtr : public boost::shared_ptr<SwaptionVolatilityStructure> {
+%shared_ptr(VanillaLocalVolSwaptionVTS)
+class VanillaLocalVolSwaptionVTS : public SwaptionVolatilityStructure {
   public:
-    %extend {
-		VanillaLocalVolSwaptionVTSPtr(
+		VanillaLocalVolSwaptionVTS(
 			const Handle<SwaptionVolatilityStructure>&                                              atmVolTS,
 			const std::vector< std::vector< boost::shared_ptr<VanillaLocalVolModelSmileSection> > >&  smiles,
 			const std::vector< Period >&                                                            swapTerms,
-			const SwapIndexPtr&                                                                     index) {
-            boost::shared_ptr<SwapIndex> swapIdx =  boost::dynamic_pointer_cast<SwapIndex>(index);
-            return new VanillaLocalVolSwaptionVTSPtr(
-                new VanillaLocalVolSwaptionVTS(atmVolTS,smiles,swapTerms,swapIdx) );
-        }    
-    }    
+			const boost::shared_ptr<SwapIndex>&                                                     index);
 };
 
 
