@@ -36,6 +36,11 @@ class HestonSLVProcess : public StochasticProcess {
                      const boost::shared_ptr<LocalVolTermStructure>& leverageFct);
 };
 
+// We need vector of processes as input
+namespace std {
+    %template(HestonSLVProcessVector) vector<boost::shared_ptr<HestonSLVProcess> >;
+}
+
 
 %{
 using QuantLib::HestonSLVMCModel;

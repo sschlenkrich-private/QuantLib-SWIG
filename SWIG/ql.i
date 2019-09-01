@@ -188,6 +188,7 @@
 %include marketelements.i
 %include money.i
 %include montecarlo.i
+%include multiassetmodels.i
 %include null.i
 %include observer.i
 %include operators.i

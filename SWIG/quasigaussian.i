@@ -32,6 +32,8 @@
 
 %include volatilities.i
 %include templatemontecarlo.i
+%include multiassetmodels.i
+
 
 
 

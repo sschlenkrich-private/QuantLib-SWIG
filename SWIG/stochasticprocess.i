@@ -106,6 +106,12 @@ class GeneralizedBlackScholesProcess : public StochasticProcess1D {
       Handle<BlackVolTermStructure> blackVolatility();
 };
 
+// We need vector of processes as input
+namespace std {
+    %template(GeneralizedBlackScholesProcessVector) vector<boost::shared_ptr<GeneralizedBlackScholesProcess> >;
+}
+
+
 %{
 using QuantLib::BlackScholesProcess;
 %}
