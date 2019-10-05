@@ -125,6 +125,7 @@ class RealMCPayoffPricer {
                         
 		static std::vector<Real> NPVs(const std::vector< boost::shared_ptr<RealMCPayoff> >&  payoffs,
 				                      const boost::shared_ptr<RealMCSimulation>&             simulation);
+									  
 };        
 
 
@@ -386,6 +387,17 @@ public:
 	// MC valuation
 	std::vector<Real> NPV(const boost::shared_ptr<RealMCSimulation>&  simulation,
 			              const std::vector<std::string>&             keys);
+						  
+    static bool add_FixingTimes_to_Asset(
+			boost::shared_ptr<RealMCPayoff>    payoff,
+			const std::vector<Real>&           fixingTimes,
+			const std::vector<Real>&           fixingValues);
+						  
+    static bool add_FixingDates_to_Asset(
+			boost::shared_ptr<RealMCPayoff>    payoff,
+			const std::vector<Date>&           fixingDates,
+			const std::vector<Real>&           fixingValues);
+						  
 };	
 
 
