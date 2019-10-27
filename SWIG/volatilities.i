@@ -335,13 +335,12 @@ using QuantLib::FixedLocalVolSurface;
 typedef boost::shared_ptr<LocalVolTermStructure> FixedLocalVolSurfacePtr;
 %}
 
-%rename(FixedLocalVolSurface) FixedLocalVolSurfacePtr;
-// class FixedLocalVolSurfacePtr : public boost::shared_ptr<LocalVolTermStructure> {
-class FixedLocalVolSurfacePtr {
+%shared_ptr(FixedLocalVolSurface);
+class FixedLocalVolSurface : public LocalVolTermStructure {
     public:
      %extend {
         // we adjust the interface constructor to simplify set up in target languages
-        FixedLocalVolSurfacePtr(
+        FixedLocalVolSurface(
             const Date&                     referenceDate,
             const std::vector<Time>&        times,
             const Matrix&                   strikeMatrix,    // M[strikeIdx][timeIdx]            
@@ -356,29 +355,22 @@ class FixedLocalVolSurfacePtr {
                 for (Size i=0; i<strikes[k]->size(); ++i) strikes[k]->at(i) = strikeMatrix[i][k];
             }
             // we hard-code linear interpolation and flat extrapolation with this interface
-            return new FixedLocalVolSurfacePtr(
-                new FixedLocalVolSurface(referenceDate, times, strikes, boost::make_shared<Matrix>(localVolMatrix),dayCounter));
+            return new FixedLocalVolSurface(referenceDate, times, strikes, boost::make_shared<Matrix>(localVolMatrix),dayCounter);
         }
+	}
 
         // wrap C++ object back into SWIG object
-        FixedLocalVolSurfacePtr( const boost::shared_ptr<LocalVolTermStructure>&  lVolTS ) {
-            boost::shared_ptr<FixedLocalVolSurface> resVolTS = boost::dynamic_pointer_cast<FixedLocalVolSurface>(lVolTS);
-            QL_REQUIRE(resVolTS, "FixedLocalVolSurface required");
-            return new FixedLocalVolSurfacePtr( resVolTS );
-        }
+        //FixedLocalVolSurfacePtr( const boost::shared_ptr<LocalVolTermStructure>&  lVolTS ) {
+        //    boost::shared_ptr<FixedLocalVolSurface> resVolTS = boost::dynamic_pointer_cast<FixedLocalVolSurface>(lVolTS);
+        //    QL_REQUIRE(resVolTS, "FixedLocalVolSurface required");
+        //    return new FixedLocalVolSurfacePtr( resVolTS );
+        //}
         
-		// inspectors
-        const std::vector<Time> times() {
-            return boost::dynamic_pointer_cast<FixedLocalVolSurface>(*self)->times();
-        }
-        const Matrix strikeMatrix() {
-            return boost::dynamic_pointer_cast<FixedLocalVolSurface>(*self)->strikeMatrix();        
-        }        
-        const Matrix localVolMatrix() {
-            return boost::dynamic_pointer_cast<FixedLocalVolSurface>(*self)->localVolMatrix();        
-        }        
+	// inspectors
+    const std::vector<Time> times();
+	const Matrix strikeMatrix();
+    const Matrix localVolMatrix();
         
-    }
 };
 
 
@@ -758,6 +750,67 @@ class SabrInterpolatedSmileSection : public SmileSection {
 		
         Real maxError();
 		
+        EndCriteria::Type endCriteria();
+		
+};
+
+
+%{
+using QuantLib::SviSmileSection;
+using QuantLib::SviInterpolatedSmileSection;
+%}
+
+%shared_ptr(SviSmileSection)
+class SviSmileSection : public SmileSection {
+  public:
+        SviSmileSection(const Date& d,
+                         Rate forward,
+                         const std::vector<Real>& sviParameters,     // a, b, sigma, rho, m
+                         const DayCounter& dc = Actual365Fixed());
+        SviSmileSection(Time timeToExpiry,
+                         Rate forward,
+                         const std::vector<Real>& sviParameters);
+};
+
+
+%shared_ptr(SviInterpolatedSmileSection)
+class SviInterpolatedSmileSection : public SmileSection {
+  public:
+        SviInterpolatedSmileSection(
+            const Date &optionDate, const Handle<Quote> &forward,
+            const std::vector<Rate> &strikes, bool hasFloatingStrikes,
+            const Handle<Quote> &atmVolatility,
+            const std::vector<Handle<Quote> > &volHandles,
+			Real a, Real b, Real sigma, Real rho, Real m,
+			bool aIsFixed, bool bIsFixed, bool sigmaIsFixed,
+			bool rhoIsFixed, bool mIsFixed, bool vegaWeighted = true,
+            const boost::shared_ptr<EndCriteria> &endCriteria =
+                boost::shared_ptr<EndCriteria>(),
+            const boost::shared_ptr<OptimizationMethod> &method =
+                boost::shared_ptr<OptimizationMethod>(),
+            const DayCounter &dc = Actual365Fixed() );
+					   
+        SviInterpolatedSmileSection(
+            const Date &optionDate, const Rate &forward,
+            const std::vector<Rate> &strikes, bool hasFloatingStrikes,
+            const Volatility &atmVolatility, 
+			const std::vector<Volatility> &vols,
+            Real a, Real b, Real sigma, Real rho, Real m, 
+			bool isAFixed, bool isBFixed, bool isSigmaFixed, 
+			bool isRhoFixed, bool isMFixed,  bool vegaWeighted = true,
+            const boost::shared_ptr<EndCriteria> &endCriteria =
+                boost::shared_ptr<EndCriteria>(),
+            const boost::shared_ptr<OptimizationMethod> &method =
+                boost::shared_ptr<OptimizationMethod>(),
+            const DayCounter &dc = Actual365Fixed());
+
+        Real a();
+        Real b();
+        Real sigma();
+        Real rho();
+        Real m();
+        Real rmsError();
+        Real maxError();
         EndCriteria::Type endCriteria();
 		
 };
