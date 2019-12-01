@@ -382,6 +382,9 @@ public:
 	const std::vector<std::string>& expressions();
 	const std::vector<std::string>& scriptLog();
 
+    std::vector<std::string> payoffsKeys();
+	std::vector <boost::shared_ptr<RealMCPayoff>> payoffValues();
+
     std::vector<Real> observationTimes(const std::vector<std::string>& keys);
 	
 	// MC valuation
