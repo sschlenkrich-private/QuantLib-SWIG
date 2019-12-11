@@ -178,6 +178,7 @@
 %include futures.i
 %include gaussian1dmodel.i
 %include grid.i
+%include hybridmodels.i
 %include indexes.i
 %include inflation.i
 %include instruments.i

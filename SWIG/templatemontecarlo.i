@@ -160,6 +160,13 @@ class RealMCCash : public RealMCPayoff {
 		RealMCCash(Time obsTime, Time payTime);
 };
 	
+// zero coupon bond payoff
+%shared_ptr(RealMCZeroBond);
+class RealMCZeroBond : public RealMCPayoff {
+	public:
+		RealMCZeroBond(Time obsTime, Time payTime, const std::string alias);
+};
+
 // 1 unit of modelled asset
 %shared_ptr(RealMCAsset);
 class RealMCAsset : public RealMCPayoff {
@@ -266,6 +273,7 @@ typedef RealMCBase::Clone              RealMCClone;
 typedef RealMCBase::FixedAmount        RealMCFixedAmount;
 typedef RealMCBase::Pay                RealMCPay;
 typedef RealMCBase::Cash               RealMCCash;
+typedef RealMCBase::ZeroBond           RealMCZeroBond;
 typedef RealMCBase::Asset              RealMCAsset;
 typedef RealMCBase::AssetBarrierNoHit  RealMCAssetBarrierNoHit;
 typedef RealMCBase::VanillaOption      RealMCVanillaOption;
@@ -333,6 +341,17 @@ class RealMCLiborRate : public RealMCPayoff {
 			const Handle<YieldTermStructure>&   discYTSH );
 };
 
+// Libor rate in hybrid model
+%shared_ptr(RealMCLiborRateCcy);
+class RealMCLiborRateCcy : public RealMCPayoff {
+	public:
+        RealMCLiborRateCcy(
+            Time                                obsTime,    // observation equals fixing time
+			const boost::shared_ptr<IborIndex>& index,
+			const Handle<YieldTermStructure>&   discYTSH,
+            const std::string                   alias );
+};
+
 // annuity (of a swap rate)
 %shared_ptr(RealMCAnnuity);
 class RealMCAnnuity : public RealMCPayoff {
@@ -365,6 +384,7 @@ class RealAMCMinMax : public RealMCPayoff {
 typedef RealMCRates::GeneralSwaption  RealMCSwaption;
 typedef RealMCRates::SwapRate         RealMCSwapRate;
 typedef RealMCRates::LiborRate        RealMCLiborRate;
+typedef RealMCRates::LiborRateCcy     RealMCLiborRateCcy;
 typedef RealMCRates::Annuity          RealMCAnnuity;
 typedef RealAMCPricer::MinMax         RealAMCMinMax;
 %}
