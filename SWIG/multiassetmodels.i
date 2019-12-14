@@ -40,6 +40,11 @@ using QuantLib::MultiAssetSLVModel;
 
 %template(RealStochasticProcessBase) boost::shared_ptr<RealStochasticProcess>;
 
+namespace std {
+    %template(RealStochasticProcessVector) vector<boost::shared_ptr<RealStochasticProcess> >;
+}
+
+
 %shared_ptr(RealStochasticProcess);
 class RealStochasticProcess {
 public:
@@ -52,6 +57,10 @@ public:
 	// integrate X1 = X0 + drift()*dt + diffusion()*dW*sqrt(dt)
 	// default implementation
 	virtual void evolve( const Real t0, const std::vector<Real>& X0, const Real dt, const std::vector<Real>& dW, std::vector<Real>& X1 );
+	// we want to keep track of the model details
+	virtual std::vector< std::string > stateAliases();
+    virtual std::vector< std::string > factorAliases();
+
 };
 
 %shared_ptr(MultiAssetBSModel);

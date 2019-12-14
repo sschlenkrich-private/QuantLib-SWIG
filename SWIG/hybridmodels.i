@@ -39,6 +39,7 @@
 using QuantLib::AssetModel;
 using QuantLib::QuasiGaussianModel;
 using QuantLib::HybridModel;
+using QuantLib::SpreadModel;
 %}
 
 
@@ -55,9 +56,7 @@ public:
 };
 
 namespace std {
-    %template(QuasiGaussianModelVector) vector<boost::shared_ptr<QuasiGaussianModel> >;
-    %template(AssetModelVector)         vector<boost::shared_ptr<AssetModel> >;
-
+    %template(AssetModelVector) vector<boost::shared_ptr<AssetModel> >;
 }
 
 
@@ -65,12 +64,12 @@ namespace std {
 class HybridModel : public RealStochasticProcess {
 public:
 	HybridModel(
-        const std::string                                             domAlias,
-        const boost::shared_ptr<QuasiGaussianModel>                   domRatesModel,
-        const std::vector<std::string>&                               forAliases,
-        const std::vector< boost::shared_ptr< AssetModel > >&         forAssetModels,
-        const std::vector< boost::shared_ptr< QuasiGaussianModel > >& forRatesModels,
-        const std::vector< std::vector<Real> >&                       correlations );	
+        const std::string                                                domAlias,
+        const boost::shared_ptr<RealStochasticProcess>                   domRatesModel,
+        const std::vector<std::string>&                                  forAliases,
+        const std::vector< boost::shared_ptr< AssetModel > >&            forAssetModels,
+        const std::vector< boost::shared_ptr< RealStochasticProcess > >& forRatesModels,
+        const std::vector< std::vector<Real> >&                          correlations );	
 
 	// inspectors
 	const std::string domAlias();
@@ -81,6 +80,24 @@ public:
 	const std::vector< std::vector<Real> >& correlations();
 	const std::vector< std::vector<Real> >& L();
 	const std::vector<size_t>& modelsStartIdx();
+
+	virtual Size size();
+	virtual Size factors();
+	virtual std::vector<Real> initialValues();					  
+
+};
+
+%shared_ptr(SpreadModel);
+class SpreadModel : public RealStochasticProcess {
+public:
+	SpreadModel(
+        const boost::shared_ptr<RealStochasticProcess>     baseModel,
+        const boost::shared_ptr<RealStochasticProcess>     sprdModel,
+        const std::vector< std::vector<Real> >&            correlations );	
+
+	// inspectors
+	const boost::shared_ptr<RealStochasticProcess>& baseModel();
+	const boost::shared_ptr<RealStochasticProcess>& sprdModel();
 
 	virtual Size size();
 	virtual Size factors();
