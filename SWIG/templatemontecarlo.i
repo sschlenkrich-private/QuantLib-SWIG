@@ -96,6 +96,9 @@ public:
 
 	// calculate observation times recursively
     std::set<Time> observationTimes();
+	
+	// return a clone but with changed observation time; this effectively allows considering a payoff as an index
+	virtual boost::shared_ptr<RealMCPayoff> at(const Time t);
             
 };
 
@@ -238,6 +241,27 @@ class RealMCMin : public RealMCPayoff {
 	              const boost::shared_ptr<RealMCPayoff>& y);
 };
 
+// exp{x}  (undiscounted)
+%shared_ptr(RealMCExponential);
+class RealMCExponential : public RealMCPayoff {
+	public:
+        RealMCExponential(const boost::shared_ptr<RealMCPayoff>& x);
+};
+
+// log{x}  (undiscounted)
+%shared_ptr(RealMCLogarithm);
+class RealMCLogarithm : public RealMCPayoff {
+	public:
+        RealMCLogarithm(const boost::shared_ptr<RealMCPayoff>& x);
+};
+
+// sqrt{x}  (undiscounted)
+%shared_ptr(RealMCSquareroot);
+class RealMCSquareroot : public RealMCPayoff {
+	public:
+        RealMCSquareroot(const boost::shared_ptr<RealMCPayoff>& x);
+};
+
 // logical operators
 %shared_ptr(RealMCLogical);
 class RealMCLogical : public RealMCPayoff {
@@ -283,6 +307,9 @@ typedef RealMCBase::Mult               RealMCMult;
 typedef RealMCBase::Division           RealMCDivision;
 typedef RealMCBase::Max                RealMCMax;
 typedef RealMCBase::Min                RealMCMin;
+typedef RealMCBase::Exponential        RealMCExponential;
+typedef RealMCBase::Logarithm          RealMCLogarithm;
+typedef RealMCBase::Squareroot         RealMCSquareroot;
 typedef RealMCBase::Logical            RealMCLogical;
 typedef RealMCBase::IfThenElse         RealMCIfThenElse;
 typedef RealMCBase::Basket             RealMCBasket;
@@ -378,6 +405,20 @@ class RealAMCMinMax : public RealMCPayoff {
             const Size                                          maxPolynDegree);
 };
 
+// indicator function 1_{x>y} or 1_{x<y} based on discounted values of x and y using regression via z
+%shared_ptr(RealAMCOne);
+class RealAMCOne : public RealMCPayoff {	
+	public:
+        RealAMCOne(
+            const std::vector<boost::shared_ptr<RealMCPayoff>>& x,
+            const std::vector<boost::shared_ptr<RealMCPayoff>>& y,
+            const std::vector<boost::shared_ptr<RealMCPayoff>>& z,
+            const Time                                          observationTime,
+			const Real                                          largerLess,             // 1: (x>y), -1: (x<y)
+            const boost::shared_ptr<RealMCSimulation>           simulation,
+            const Size                                          maxPolynDegree);
+};
+
 
 // we need to tell C++ that our outer classes are actual inner classes
 %{
@@ -387,6 +428,7 @@ typedef RealMCRates::LiborRate        RealMCLiborRate;
 typedef RealMCRates::LiborRateCcy     RealMCLiborRateCcy;
 typedef RealMCRates::Annuity          RealMCAnnuity;
 typedef RealAMCPricer::MinMax         RealAMCMinMax;
+typedef RealAMCPricer::One            RealAMCOne;
 %}
 
 %shared_ptr(RealMCScript);
