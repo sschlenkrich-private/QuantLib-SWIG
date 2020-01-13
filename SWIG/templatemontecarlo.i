@@ -419,6 +419,18 @@ class RealAMCOne : public RealMCPayoff {
             const Size                                          maxPolynDegree);
 };
 
+// sum of future payoffs x based on discounted values of x using regression via z
+%shared_ptr(RealAMCSum);
+class RealAMCSum : public RealMCPayoff {	
+	public:
+        RealAMCSum(
+            const std::vector<boost::shared_ptr<RealMCPayoff>>& x,
+            const std::vector<boost::shared_ptr<RealMCPayoff>>& z,
+            const Time                                          observationTime,
+            const boost::shared_ptr<RealMCSimulation>           simulation,
+            const Size                                          maxPolynDegree);
+};
+
 
 // we need to tell C++ that our outer classes are actual inner classes
 %{
@@ -429,6 +441,7 @@ typedef RealMCRates::LiborRateCcy     RealMCLiborRateCcy;
 typedef RealMCRates::Annuity          RealMCAnnuity;
 typedef RealAMCPricer::MinMax         RealAMCMinMax;
 typedef RealAMCPricer::One            RealAMCOne;
+typedef RealAMCPricer::Sum            RealAMCSum;
 %}
 
 %shared_ptr(RealMCScript);
