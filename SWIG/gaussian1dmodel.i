@@ -93,6 +93,9 @@ using QuantLib::MarkovFunctional;
 
 %shared_ptr(Gsr)
 class Gsr : public Gaussian1dModel {
+    #if defined(SWIGCSHARP)
+    %rename("parameters") params;
+    #endif
   public:
     Gsr(const Handle<YieldTermStructure> &termStructure,
            const std::vector<Date> &volstepdates,
@@ -112,14 +115,14 @@ class Gsr : public Gaussian1dModel {
     // Calibrated Model functions
     Array params() const;
     void calibrate(
-            const std::vector<boost::shared_ptr<CalibrationHelperBase> >& instruments,
+            const std::vector<boost::shared_ptr<CalibrationHelper> >& instruments,
             OptimizationMethod& method, const EndCriteria& endCriteria,
             const Constraint& constraint = Constraint(),
             const std::vector<Real>& weights = std::vector<Real>(),
             const std::vector<bool>& fixParameters = std::vector<bool>());
     void setParams(const Array& params);
     Real value(const Array& params,
-               const std::vector<boost::shared_ptr<CalibrationHelperBase> >& instruments);
+               const std::vector<boost::shared_ptr<CalibrationHelper> >& instruments);
     const boost::shared_ptr<Constraint>& constraint() const;
     EndCriteria::Type endCriteria() const;
     const Array& problemValues() const;
@@ -132,6 +135,9 @@ class Gsr : public Gaussian1dModel {
 
 %shared_ptr(MarkovFunctional)
 class MarkovFunctional : public Gaussian1dModel {
+    #if defined(SWIGCSHARP)
+    %rename("parameters") params;
+    #endif
   public:
   
     struct ModelSettings {
@@ -184,7 +190,7 @@ class MarkovFunctional : public Gaussian1dModel {
     const Array &volatility();
 
     void calibrate(
-        const std::vector<boost::shared_ptr<BlackCalibrationHelper> > &helper,
+        const std::vector<boost::shared_ptr<CalibrationHelper> > &helper,
         OptimizationMethod &method, const EndCriteria &endCriteria,
         const Constraint &constraint = Constraint(),
         const std::vector<Real> &weights = std::vector<Real>(),
@@ -194,7 +200,7 @@ class MarkovFunctional : public Gaussian1dModel {
     Array params() const;
     void setParams(const Array& params);
     Real value(const Array& params,
-               const std::vector<boost::shared_ptr<CalibrationHelperBase> >& instruments);
+               const std::vector<boost::shared_ptr<CalibrationHelper> >& instruments);
     const boost::shared_ptr<Constraint>& constraint() const;
     EndCriteria::Type endCriteria() const;
     const Array& problemValues() const;

@@ -37,7 +37,9 @@
 %include vectors.i
 
 %{
-using QuantLib::CalibrationHelperBase;
+using QuantLib::VanillaSwap;
+using QuantLib::Swaption;
+using QuantLib::CalibrationHelper;
 using QuantLib::BlackCalibrationHelper;
 using QuantLib::SwaptionHelper;
 using QuantLib::CapHelper;
@@ -45,22 +47,19 @@ using QuantLib::HestonModelHelper;
 %}
 
 // calibration helpers
-%shared_ptr(CalibrationHelperBase)
-class CalibrationHelperBase {
+%shared_ptr(CalibrationHelper)
+class CalibrationHelper {
   public:
-	Real calibrationError();
+    Real calibrationError();
   private:
-    CalibrationHelperBase();
+    CalibrationHelper();
 };
 
 %shared_ptr(BlackCalibrationHelper)
-class BlackCalibrationHelper : public CalibrationHelperBase {
-    #if defined(SWIGRUBY)
-    %rename("pricingEngine=")      setPricingEngine;
-    #endif
+class BlackCalibrationHelper : public CalibrationHelper {
   public:
     enum CalibrationErrorType { RelativePriceError, PriceError, ImpliedVolError };
-                       
+
     void setPricingEngine(const boost::shared_ptr<PricingEngine>& engine);
     Real marketValue() const;
     virtual Real modelValue() const;
@@ -77,7 +76,7 @@ class BlackCalibrationHelper : public CalibrationHelperBase {
 };
 
 %inline %{
-    boost::shared_ptr<BlackCalibrationHelper> as_black_helper(const boost::shared_ptr<CalibrationHelperBase>& h) {
+    boost::shared_ptr<BlackCalibrationHelper> as_black_helper(const boost::shared_ptr<CalibrationHelper>& h) {
         return boost::dynamic_pointer_cast<BlackCalibrationHelper>(h);
     }
     boost::shared_ptr<SwaptionHelper> as_swaption_helper(const boost::shared_ptr<BlackCalibrationHelper>& h) {
@@ -101,7 +100,7 @@ class SwaptionHelper : public BlackCalibrationHelper {
                       const Real nominal = 1.0,
                       const VolatilityType type = ShiftedLognormal,
                       const Real shift = 0.0);
-    
+
     SwaptionHelper(const Date& exerciseDate, const Period& length,
                       const Handle<Quote>& volatility,
                       const boost::shared_ptr<IborIndex>& index,
@@ -115,7 +114,7 @@ class SwaptionHelper : public BlackCalibrationHelper {
                       const Real nominal = 1.0,
                       const VolatilityType type = ShiftedLognormal,
                       const Real shift = 0.0);
-    
+
     SwaptionHelper(const Date& exerciseDate, const Date& endDate,
                       const Handle<Quote>& volatility,
                       const boost::shared_ptr<IborIndex>& index,
@@ -132,7 +131,7 @@ class SwaptionHelper : public BlackCalibrationHelper {
 
     boost::shared_ptr<VanillaSwap> underlyingSwap() const;
     boost::shared_ptr<Swaption> swaption() const;
-                      
+
     %extend {
         std::vector<Time> times() {
             std::list<Time> l;
@@ -160,15 +159,17 @@ class SwaptionHelper : public BlackCalibrationHelper {
 class CapHelper : public BlackCalibrationHelper {
   public:
     CapHelper(const Period& length,
-                 const Handle<Quote>& volatility,
-                 const boost::shared_ptr<IborIndex>& index,
-                 Frequency fixedLegFrequency,
-                 const DayCounter& fixedLegDayCounter,
-                 bool includeFirstSwaplet,
-                 const Handle<YieldTermStructure>& termStructure,
-                 BlackCalibrationHelper::CalibrationErrorType errorType
-                                = BlackCalibrationHelper::RelativePriceError);
-    %extend {        
+              const Handle<Quote>& volatility,
+              const boost::shared_ptr<IborIndex>& index,
+              Frequency fixedLegFrequency,
+              const DayCounter& fixedLegDayCounter,
+              bool includeFirstSwaplet,
+              const Handle<YieldTermStructure>& termStructure,
+              BlackCalibrationHelper::CalibrationErrorType errorType
+                                = BlackCalibrationHelper::RelativePriceError,
+              const VolatilityType type = ShiftedLognormal,
+              const Real shift = 0.0);
+    %extend {
         std::vector<Time> times() {
             std::list<Time> l;
             self->addTimesTo(l);
@@ -195,14 +196,14 @@ class HestonModelHelper : public BlackCalibrationHelper {
 
 // allow use of vectors of helpers
 #if defined(SWIGCSHARP)
-SWIG_STD_VECTOR_ENHANCED( boost::shared_ptr<CalibrationHelperBase> )
+SWIG_STD_VECTOR_ENHANCED( boost::shared_ptr<CalibrationHelper> )
 SWIG_STD_VECTOR_ENHANCED( boost::shared_ptr<BlackCalibrationHelper> )
 #endif
 namespace std {
     %template(CalibrationHelperVector)
-        vector<boost::shared_ptr<CalibrationHelperBase> >;
+        vector<boost::shared_ptr<CalibrationHelper> >;
     %template(BlackCalibrationHelperVector)
-        vector<boost::shared_ptr<BlackCalibrationHelper> >;        
+        vector<boost::shared_ptr<BlackCalibrationHelper> >;
 }
 
 // the base class for calibrated models
@@ -213,23 +214,21 @@ using QuantLib::TermStructureConsistentModel;
 
 %shared_ptr(CalibratedModel)
 class CalibratedModel : public virtual Observable {
-    #if defined(SWIGRUBY)
-    %rename("calibrate!") calibrate;
-    #elif defined(SWIGCSHARP)
+    #if defined(SWIGCSHARP)
     %rename("parameters") params;
     #endif
   public:
     Array params() const;
     virtual void calibrate(
-        const std::vector<boost::shared_ptr<CalibrationHelperBase> >&,
+        const std::vector<boost::shared_ptr<CalibrationHelper> >&,
         OptimizationMethod&, const EndCriteria &,
         const Constraint& constraint = Constraint(),
         const std::vector<Real>& weights = std::vector<Real>(),
         const std::vector<bool>& fixParameters = std::vector<bool>());
-     
+
     void setParams(const Array& params);
     Real value(const Array& params,
-               const std::vector<boost::shared_ptr<CalibrationHelperBase> >&);
+               const std::vector<boost::shared_ptr<CalibrationHelper> >&);
     const boost::shared_ptr<Constraint>& constraint() const;
     EndCriteria::Type endCriteria() const;
     const Array& problemValues() const;

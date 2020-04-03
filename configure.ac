@@ -1,5 +1,5 @@
 # Process this file with autoconf to produce a configure script.
-AC_INIT([QuantLib-SWIG], [1.17],
+AC_INIT([QuantLib-SWIG], [1.19-dev],
         [quantlib-dev@lists.sourceforge.net],
         [QuantLib-SWIG])
 AC_PREREQ(2.50)
@@ -57,16 +57,6 @@ AC_ARG_ENABLE([python],
               [build_python=yes])
 AM_CONDITIONAL(BUILD_PYTHON, test "$build_python" != "no")
 
-AC_PATH_PROG([RUBY], [ruby])
-AM_CONDITIONAL(HAVE_RUBY, test "x${RUBY}" != "x")
-AC_ARG_ENABLE([ruby],
-              AC_HELP_STRING([--disable-ruby],
-                             [If disabled, the Ruby module
-                              will not be built]),
-              [build_ruby=$enableval],
-              [build_ruby=yes])
-AM_CONDITIONAL(BUILD_RUBY, test "$build_ruby" != "no")
-
 AC_PATH_PROGS([MCS], [gmcs mcs gmcs2])
 AC_PATH_PROGS([MONO], [mono])
 AM_CONDITIONAL(HAVE_MCS, test "x${MCS}" != "x" && test "x${MONO}" != "x")
@@ -87,6 +77,8 @@ AC_ARG_ENABLE([r],
               [build_r=$enableval],
               [build_r=yes])
 AM_CONDITIONAL(BUILD_R, test "$build_r" != "no")
+# sanitized version for stricter R checks
+AC_SUBST([PACKAGE_VERSION_FOR_R],["${PACKAGE_VERSION%-*}"])
 
 AC_PATH_PROG([JAVAC], [javac])
 AC_PATH_PROG([JAR], [jar])
@@ -173,8 +165,6 @@ AC_CONFIG_FILES([
     Python/setup.py
     R/Makefile
     R/DESCRIPTION
-    Ruby/Makefile
-    Ruby/setup.rb
     Scala/Makefile])
 AC_OUTPUT
 

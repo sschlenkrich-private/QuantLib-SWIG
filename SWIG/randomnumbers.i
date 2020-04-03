@@ -24,10 +24,6 @@
 
 %include distributions.i
 
-#if defined(SWIGRUBY)
-#pragma SWIG nowarn=314
-#endif
-
 %{
 using QuantLib::Sample;
 
@@ -78,6 +74,10 @@ class Sample {
 %template(SampleRealVector) Sample<std::vector<Real> >; 
 
 /************* Uniform number generators *************/
+
+#if defined(SWIGR)
+%rename(nextSample) next;
+#endif
 
 class LecuyerUniformRng {
   public:
@@ -188,17 +188,14 @@ class SobolRsg {
             JoeKuoD5, JoeKuoD6, JoeKuoD7,
             Kuo, Kuo2, Kuo3 };
     SobolRsg(Size dimensionality, BigInteger seed=0,
-            DirectionIntegers directionIntegers = QuantLib::SobolRsg::Jaeckel);
+             DirectionIntegers directionIntegers = QuantLib::SobolRsg::Jaeckel);
     const Sample<std::vector<Real> >& nextSequence() const;
     const Sample<std::vector<Real> >& lastSequence() const;
     Size dimension() const;
     void skipTo(Size n);
     %extend{
       std::vector<unsigned int> nextInt32Sequence(){
-        const std::vector<boost::uint_least32_t> &tmp = $self->nextInt32Sequence();
-        std::vector<unsigned int> outp(tmp.size());
-        std::copy(tmp.begin(),tmp.end(),outp.begin());
-        return outp;
+          return to_vector<unsigned int>($self->nextInt32Sequence());
       }
     }
 };
@@ -239,7 +236,10 @@ class UniformRandomSequenceGenerator {
 
 class UniformLowDiscrepancySequenceGenerator {
   public:
-    UniformLowDiscrepancySequenceGenerator(Size dimensionality);
+    UniformLowDiscrepancySequenceGenerator(
+        Size dimensionality,
+        BigInteger seed=0,
+        SobolRsg::DirectionIntegers directionIntegers = QuantLib::SobolRsg::Jaeckel);
     const Sample<std::vector<Real> >& nextSequence() const;
     Size dimension() const;
 };

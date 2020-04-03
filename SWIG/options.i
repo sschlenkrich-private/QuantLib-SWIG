@@ -380,6 +380,14 @@ class AnalyticHestonEngine : public PricingEngine {
     AnalyticHestonEngine(const boost::shared_ptr<HestonModel>& model,
                      ComplexLogFormula cpxLog, const AnalyticHestonEngine::Integration& itg,
                      Real andersenPiterbargEpsilon = 1e-8);
+
+    %extend {                     
+    	std::pair<Real, Real> chF(Real real, Real imag, Time t) const {
+    		const std::complex<Real> tmp 
+    			= self->chF(std::complex<Real>(real, imag), t);
+    		return std::pair<Real, Real>(tmp.real(), tmp.imag());
+    	}
+    }
 };
 
 %{
@@ -401,6 +409,9 @@ using QuantLib::AnalyticPTDHestonEngine;
 %shared_ptr(AnalyticPTDHestonEngine)
 class AnalyticPTDHestonEngine : public PricingEngine {
   public:
+    enum ComplexLogFormula { Gatheral, AndersenPiterbarg };
+    typedef AnalyticHestonEngine::Integration Integration;
+    
     AnalyticPTDHestonEngine(
             const boost::shared_ptr<PiecewiseTimeDependentHestonModel>& model,
             Real relTolerance, Size maxEvaluations);
@@ -409,6 +420,13 @@ class AnalyticPTDHestonEngine : public PricingEngine {
     AnalyticPTDHestonEngine(
             const boost::shared_ptr<PiecewiseTimeDependentHestonModel>& model,
             Size integrationOrder = 144);
+            
+    // Constructor giving full control over Fourier integration algorithm
+    AnalyticPTDHestonEngine(
+        const boost::shared_ptr<PiecewiseTimeDependentHestonModel>& model,
+        ComplexLogFormula cpxLog,
+        const Integration& itg,
+        Real andersenPiterbargEpsilon = 1e-8);            
 };
 
 
@@ -463,6 +481,12 @@ typedef QuantLib::FDBermudanEngine<CrankNicolson> FDBermudanEngine;
 
 %shared_ptr(FDBermudanEngine)
 class FDBermudanEngine : public PricingEngine {
+    #if defined(SWIGPYTHON)
+    %pythonprepend FDBermudanEngine %{
+        from warnings import warn
+        warn("FDBermudanEngine is deprecated; use FdBlackScholesVanillaEngine")
+    %}
+    #endif
   public:
     FDBermudanEngine(const boost::shared_ptr<GeneralizedBlackScholesProcess>& process,
                      Size timeSteps = 100, Size gridPoints = 100,
@@ -475,6 +499,12 @@ typedef QuantLib::FDEuropeanEngine<CrankNicolson> FDEuropeanEngine;
 
 %shared_ptr(FDEuropeanEngine)
 class FDEuropeanEngine : public PricingEngine {
+    #if defined(SWIGPYTHON)
+    %pythonprepend FDEuropeanEngine %{
+        from warnings import warn
+        warn("FDEuropeanEngine is deprecated; use FdBlackScholesVanillaEngine")
+    %}
+    #endif
   public:
     FDEuropeanEngine(const boost::shared_ptr<GeneralizedBlackScholesProcess> process,
                      Size timeSteps = 100, Size gridPoints = 100,
@@ -706,7 +736,7 @@ class MCAmericanEngine : public PricingEngine {
                    polynomType,
                    nCalibrationSamples,
                    antitheticVariateCalibration,
-                   seedCalibration)
+                   seedCalibration if seedCalibration is not None else nullInt())
 %}
 #endif
 
@@ -786,6 +816,12 @@ typedef QuantLib::FDShoutEngine<CrankNicolson> FDShoutEngine;
 
 %shared_ptr(FDAmericanEngine)
 class FDAmericanEngine : public PricingEngine {
+    #if defined(SWIGPYTHON)
+    %pythonprepend FDAmericanEngine %{
+        from warnings import warn
+        warn("FDAmericanEngine is deprecated; use FdBlackScholesVanillaEngine")
+    %}
+    #endif
   public:
     FDAmericanEngine(const boost::shared_ptr<GeneralizedBlackScholesProcess>& process,
                      Size timeSteps = 100, Size gridPoints = 100,
@@ -933,6 +969,12 @@ using QuantLib::FDDividendAmericanEngine;
 %rename(FDDividendEuropeanEngineT) FDDividendEuropeanEngine;
 template <class S>
 class FDDividendEuropeanEngine : public PricingEngine {
+    #if defined(SWIGPYTHON)
+    %pythonprepend FDDividendEuropeanEngine %{
+        from warnings import warn
+        warn("FDDividendEuropeanEngine is deprecated; use FdBlackScholesVanillaEngine")
+    %}
+    #endif
   public:
     FDDividendEuropeanEngine(const boost::shared_ptr<GeneralizedBlackScholesProcess>& process,
                              Size timeSteps = 100,
@@ -948,6 +990,12 @@ class FDDividendEuropeanEngine : public PricingEngine {
 %rename(FDDividendAmericanEngineT) FDDividendAmericanEngine;
 template <class S>
 class FDDividendAmericanEngine : public PricingEngine {
+    #if defined(SWIGPYTHON)
+    %pythonprepend FDDividendAmericanEngine %{
+        from warnings import warn
+        warn("FDDividendAmericanEngine is deprecated; use FdBlackScholesVanillaEngine")
+    %}
+    #endif
   public:
     FDDividendAmericanEngine(const boost::shared_ptr<GeneralizedBlackScholesProcess>& process,
                              Size timeSteps = 100,
@@ -1078,7 +1126,8 @@ using QuantLib::FdmSchemeDesc;
 struct FdmSchemeDesc {
   enum FdmSchemeType { HundsdorferType, DouglasType,
                        CraigSneydType, ModifiedCraigSneydType,
-                       ImplicitEulerType, ExplicitEulerType };
+                       ImplicitEulerType, ExplicitEulerType,
+                       MethodOfLinesType, TrBDF2Type };
 
   FdmSchemeDesc(FdmSchemeType type, Real theta, Real mu);
 
@@ -1093,10 +1142,30 @@ struct FdmSchemeDesc {
   static FdmSchemeDesc ModifiedCraigSneyd();
   static FdmSchemeDesc Hundsdorfer();
   static FdmSchemeDesc ModifiedHundsdorfer();
+  static FdmSchemeDesc MethodOfLines(
+      Real eps=0.001, Real relInitStepSize=0.01);
+  static FdmSchemeDesc TrBDF2();
 };
 
 %{
+using QuantLib::FdmQuantoHelper;
+%}
+
+%shared_ptr(FdmQuantoHelper)
+class FdmQuantoHelper {
+  public:
+    FdmQuantoHelper(
+        const boost::shared_ptr<YieldTermStructure>& rTS,
+        const boost::shared_ptr<YieldTermStructure>& fTS,
+        const boost::shared_ptr<BlackVolTermStructure>& fxVolTS,
+        Real equityFxCorrelation,
+        Real exchRateATMlevel);
+};
+
+%{
+using QuantLib::LocalVolTermStructure;
 using QuantLib::FdBlackScholesVanillaEngine;
+using QuantLib::FdOrnsteinUhlenbeckVanillaEngine;
 using QuantLib::FdBatesVanillaEngine;
 using QuantLib::FdHestonVanillaEngine;
 %}
@@ -1104,12 +1173,59 @@ using QuantLib::FdHestonVanillaEngine;
 %shared_ptr(FdBlackScholesVanillaEngine)
 class FdBlackScholesVanillaEngine : public PricingEngine {
   public:
+    enum CashDividendModel { Spot, Escrowed };
+
     FdBlackScholesVanillaEngine(
-            const boost::shared_ptr<GeneralizedBlackScholesProcess>& process,
-            Size tGrid = 100, Size xGrid = 100, Size dampingSteps = 0,
-            const FdmSchemeDesc& schemeDesc = FdmSchemeDesc::Douglas(),
-            bool localVol = false,
-            Real illegalLocalVolOverwrite = -Null<Real>());
+        const boost::shared_ptr<GeneralizedBlackScholesProcess>& process,
+        Size tGrid = 100, Size xGrid = 100, Size dampingSteps = 0,
+        const FdmSchemeDesc& schemeDesc = FdmSchemeDesc::Douglas(),
+        bool localVol = false,
+        Real illegalLocalVolOverwrite = -Null<Real>(),
+        CashDividendModel cashDividendModel = Spot);
+
+    FdBlackScholesVanillaEngine(
+        const boost::shared_ptr<GeneralizedBlackScholesProcess>&,
+        const boost::shared_ptr<FdmQuantoHelper>& quantoHelper,
+        Size tGrid = 100, Size xGrid = 100, Size dampingSteps = 0,
+        const FdmSchemeDesc& schemeDesc = FdmSchemeDesc::Douglas(),
+        bool localVol = false,
+        Real illegalLocalVolOverwrite = -Null<Real>(),
+        CashDividendModel cashDividendModel = Spot);
+
+    #if !defined(SWIGJAVA) && !defined(SWIGCSHARP)
+    %feature("kwargs") make;
+    %extend {
+        static boost::shared_ptr<FdBlackScholesVanillaEngine> make(
+                    const boost::shared_ptr<GeneralizedBlackScholesProcess>& process,
+                    const boost::shared_ptr<FdmQuantoHelper>& quantoHelper
+                        = boost::shared_ptr<FdmQuantoHelper>(),
+                    Size tGrid = 100, Size xGrid = 100, Size dampingSteps = 0,
+                    const FdmSchemeDesc& schemeDesc = FdmSchemeDesc::Douglas(),
+                    bool localVol = false,
+                    Real illegalLocalVolOverwrite = -Null<Real>(),
+                    CashDividendModel cashDividendModel = Spot) {
+            return boost::shared_ptr<FdBlackScholesVanillaEngine>(
+                new FdBlackScholesVanillaEngine(process, quantoHelper, tGrid, xGrid,
+                                                dampingSteps, schemeDesc,
+                                                localVol, illegalLocalVolOverwrite,
+                                                cashDividendModel));
+        }
+    }
+    #endif
+};
+
+%shared_ptr(FdOrnsteinUhlenbeckVanillaEngine)
+class FdOrnsteinUhlenbeckVanillaEngine : public PricingEngine {
+  public:
+    #if !defined(SWIGPYTHON)
+    %feature("kwargs") FdOrnsteinUhlenbeckVanillaEngine;
+    #endif
+    FdOrnsteinUhlenbeckVanillaEngine(
+        const boost::shared_ptr<OrnsteinUhlenbeckProcess>&,
+        const boost::shared_ptr<YieldTermStructure>& rTS,
+        Size tGrid = 100, Size xGrid = 100, Size dampingSteps = 0,
+        Real epsilon = 0.0001,
+        const FdmSchemeDesc& schemeDesc = FdmSchemeDesc::Douglas());
 };
 
 %shared_ptr(FdBatesVanillaEngine)
@@ -1126,12 +1242,42 @@ class FdBatesVanillaEngine : public PricingEngine {
 class FdHestonVanillaEngine : public PricingEngine {
   public:
     FdHestonVanillaEngine(
-            const boost::shared_ptr<HestonModel>& model,
-            Size tGrid = 100, Size xGrid = 100,
-            Size vGrid = 50, Size dampingSteps = 0,
-            const FdmSchemeDesc& schemeDesc = FdmSchemeDesc::Hundsdorfer(),
-            const boost::shared_ptr<LocalVolTermStructure>& leverageFct
-                = boost::shared_ptr<LocalVolTermStructure>());
+        const boost::shared_ptr<HestonModel>& model,
+        Size tGrid = 100, Size xGrid = 100,
+        Size vGrid = 50, Size dampingSteps = 0,
+        const FdmSchemeDesc& schemeDesc = FdmSchemeDesc::Hundsdorfer(),
+        const boost::shared_ptr<LocalVolTermStructure>& leverageFct
+            = boost::shared_ptr<LocalVolTermStructure>());
+
+    FdHestonVanillaEngine(
+        const boost::shared_ptr<HestonModel>& model,
+        const boost::shared_ptr<FdmQuantoHelper>& quantoHelper,
+        Size tGrid = 100, 
+        Size xGrid = 100,
+        Size vGrid = 50, 
+        Size dampingSteps = 0,
+        const FdmSchemeDesc& schemeDesc = FdmSchemeDesc::Hundsdorfer(),
+        const boost::shared_ptr<LocalVolTermStructure>& leverageFct
+            = boost::shared_ptr<LocalVolTermStructure>());
+
+    #if !defined(SWIGJAVA) && !defined(SWIGCSHARP)
+    %feature("kwargs") make;
+    %extend {
+        static boost::shared_ptr<FdHestonVanillaEngine> make(
+                    const boost::shared_ptr<HestonModel>& model,
+                    const boost::shared_ptr<FdmQuantoHelper>& quantoHelper
+                        = boost::shared_ptr<FdmQuantoHelper>(),
+                    Size tGrid = 100, Size xGrid = 100, Size vGrid = 50,
+                    Size dampingSteps = 0,
+                    const FdmSchemeDesc& schemeDesc = FdmSchemeDesc::Hundsdorfer(),
+                    const boost::shared_ptr<LocalVolTermStructure>& leverageFct
+                        = boost::shared_ptr<LocalVolTermStructure>()) {
+            return boost::shared_ptr<FdHestonVanillaEngine>(
+                new FdHestonVanillaEngine(model, quantoHelper, tGrid, xGrid, vGrid,
+                                          dampingSteps, schemeDesc, leverageFct));
+        }
+    }
+    #endif
 };
 
 
@@ -1917,5 +2063,101 @@ class FdSimpleExtOUJumpSwingEngine : public PricingEngine {
     }
 };
 
+
+%{
+using QuantLib::GJRGARCHModel;
+%}
+
+%shared_ptr(GJRGARCHModel)
+class GJRGARCHModel : public CalibratedModel {
+      public:
+        GJRGARCHModel(const boost::shared_ptr<GJRGARCHProcess>& process);
+        Real omega() const;
+        Real alpha() const;
+        Real beta() const;
+        Real gamma() const;
+        Real lambda() const;
+        Real v0() const;
+};
+
+
+%{
+using QuantLib::AnalyticGJRGARCHEngine;
+%}
+
+%shared_ptr(AnalyticGJRGARCHEngine)
+class AnalyticGJRGARCHEngine : public PricingEngine {
+  public:
+    AnalyticGJRGARCHEngine(const boost::shared_ptr<GJRGARCHModel>& process);
+};
+
+%{
+using QuantLib::MCEuropeanGJRGARCHEngine;
+%}
+
+%shared_ptr(MCEuropeanGJRGARCHEngine<PseudoRandom>);
+%shared_ptr(MCEuropeanGJRGARCHEngine<LowDiscrepancy>);
+
+template <class RNG>
+class MCEuropeanGJRGARCHEngine : public PricingEngine {
+    #if !defined(SWIGJAVA) && !defined(SWIGCSHARP)
+    %feature("kwargs") MCEuropeanGJRGARCHEngine;
+    #endif
+  public:
+    %extend {
+        MCEuropeanGJRGARCHEngine(const boost::shared_ptr<GJRGARCHProcess>& process,
+                                 intOrNull timeSteps = Null<Size>(),
+                                 intOrNull timeStepsPerYear = Null<Size>(),
+                                 bool antitheticVariate = false,
+                                 intOrNull requiredSamples = Null<Size>(),
+                                 doubleOrNull requiredTolerance = Null<Real>(),
+                                 intOrNull maxSamples = Null<Size>(),
+                                 BigInteger seed = 0) {
+            QL_REQUIRE(Size(timeSteps) != Null<Size>() ||
+                       Size(timeStepsPerYear) != Null<Size>(),
+                       "number of steps not specified");
+            return new MCEuropeanGJRGARCHEngine<RNG>(process,
+                                                     timeSteps,
+                                                     timeStepsPerYear,
+                                                     antitheticVariate,
+                                                     requiredSamples,
+                                                     requiredTolerance,
+                                                     maxSamples,
+                                                     seed);
+        }
+    }
+};
+
+%template(MCPREuropeanGJRGARCHEngine) MCEuropeanGJRGARCHEngine<PseudoRandom>;
+%template(MCLDEuropeanGJRGARCHEngine) MCEuropeanGJRGARCHEngine<LowDiscrepancy>;
+
+#if defined(SWIGPYTHON)
+%pythoncode %{
+    def MCEuropeanGJRGARCHEngine(process,
+                                 traits,
+                                 timeSteps=None,
+                                 timeStepsPerYear=None,
+                                 antitheticVariate=False,
+                                 requiredSamples=None,
+                                 requiredTolerance=None,
+                                 maxSamples=None,
+                                 seed=0):
+        traits = traits.lower()
+        if traits == "pr" or traits == "pseudorandom":
+            cls = MCPREuropeanGJRGARCHEngine
+        elif traits == "ld" or traits == "lowdiscrepancy":
+            cls = MCLDEuropeanGJRGARCHEngine
+        else:
+            raise RuntimeError("unknown MC traits: %s" % traits);
+        return cls(process,
+                   timeSteps,
+                   timeStepsPerYear,
+                   antitheticVariate,
+                   requiredSamples,
+                   requiredTolerance,
+                   maxSamples,
+                   seed)
+%}
+#endif
 
 #endif

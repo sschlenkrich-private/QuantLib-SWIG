@@ -22,11 +22,21 @@
 #define quantlib_vectors_i
 
 %include stl.i
+%include common.i
 %include date.i
 
 #if defined(SWIGCSHARP)
 SWIG_STD_VECTOR_ENHANCED( std::pair<Date,double> )
 #endif
+
+%{
+template <class T, class U>
+std::vector<T> to_vector(const std::vector<U>& v) {
+    std::vector<T> out(v.size());
+    std::copy(v.begin(), v.end(), out.begin());
+    return out;
+}
+%}
 
 namespace std {
 

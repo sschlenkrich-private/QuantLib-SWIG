@@ -1,7 +1,7 @@
 /*
  Copyright (C) 2010 Joseph Wang
  Copyright (C) 2010, 2011, 2014 StatPro Italia srl
- Copyright (C) 2018 Matthias Lungwitz
+ Copyright (C) 2018, 2019 Matthias Lungwitz
  
  This file is part of QuantLib, a free-software/open-source library
  for financial quantitative analysts and developers - http://quantlib.org/
@@ -57,11 +57,6 @@ class MultiplicativePriceSeasonality : public Seasonality {
 
 %shared_ptr(InflationTermStructure);
 class InflationTermStructure : public TermStructure {
-    #if defined(SWIGRUBY)
-    %rename("indexIsInterpolated?")   indexIsInterpolated;
-    %rename("setSeasonality!")        setSeasonality;
-    %rename("hasSeasonality?")        hasSeasonality;
-    #endif
   private:
     InflationTermStructure();
   public:
@@ -85,6 +80,8 @@ class YoYInflationTermStructure : public InflationTermStructure {
     Rate yoyRate(const Date &d, const Period& instObsLag = Period(-1,Days),
                  bool forceLinearInterpolation = false,
                  bool extrapolate = false) const;
+    Rate yoyRate(Time t,
+                 bool extrapolate = false) const;
 };
 
 %template(YoYInflationTermStructureHandle) Handle<YoYInflationTermStructure>;
@@ -99,6 +96,8 @@ class ZeroInflationTermStructure : public InflationTermStructure {
   public:
     Rate zeroRate(const Date &d, const Period& instObsLag = Period(-1,Days),
                   bool forceLinearInterpolation = false,
+                  bool extrapolate = false) const;
+    Rate zeroRate(Time t,
                   bool extrapolate = false) const;
 };
 
@@ -220,8 +219,55 @@ struct CPI {
     enum InterpolationType { AsIndex, Flat, Linear };
 };
 
-// bootstrapped curves
 
+// cashflows
+
+%{
+using QuantLib::InflationCoupon;
+using QuantLib::CPICoupon;
+%}
+
+%shared_ptr(InflationCoupon)
+class InflationCoupon : public Coupon {
+  private:
+    InflationCoupon();
+  public:
+    Date fixingDate() const;
+    Integer fixingDays() const;
+    Period observationLag() const;
+    Rate indexFixing() const;
+    boost::shared_ptr<InflationIndex> index() const;
+};
+
+%inline %{
+    boost::shared_ptr<InflationCoupon> as_inflation_coupon(
+                                      const boost::shared_ptr<CashFlow>& cf) {
+        return boost::dynamic_pointer_cast<InflationCoupon>(cf);
+    }
+%}
+
+%shared_ptr(CPICoupon)
+class CPICoupon : public InflationCoupon {
+  private:
+    CPICoupon();
+  public:
+    Rate fixedRate() const;
+    Spread spread() const;
+    Rate adjustedFixing() const;
+    Rate baseCPI() const;
+    CPI::InterpolationType observationInterpolation() const;
+    boost::shared_ptr<ZeroInflationIndex> cpiIndex() const;
+};
+
+%inline %{
+    boost::shared_ptr<CPICoupon> as_cpi_coupon(
+                                      const boost::shared_ptr<CashFlow>& cf) {
+        return boost::dynamic_pointer_cast<CPICoupon>(cf);
+    }
+%}
+
+
+// bootstrapped curves
 
 %{
 
@@ -528,5 +574,62 @@ class YoYInflationCollar : public YoYInflationCapFloor {
             const std::vector<Rate>& capRates,
             const std::vector<Rate>& floorRates);
 };
+
+%{
+using QuantLib::InterpolatedZeroInflationCurve;
+using QuantLib::InterpolatedYoYInflationCurve;
+%}
+
+%shared_ptr(InterpolatedZeroInflationCurve<Linear>);
+%shared_ptr(InterpolatedYoYInflationCurve<Linear>);
+
+template <class Interpolator>
+class InterpolatedZeroInflationCurve : public ZeroInflationTermStructure {
+  public:
+    InterpolatedZeroInflationCurve(const Date& referenceDate,
+                                   const Calendar& calendar,
+                                   const DayCounter& dayCounter,
+                                   const Period& lag,
+                                   Frequency frequency,
+                                   bool indexIsInterpolated,
+                                   const Handle<YieldTermStructure>& yTS,
+                                   const std::vector<Date>& dates,
+                                   const std::vector<Rate>& rates,
+                                   const Interpolator &interpolator
+                                                        = Interpolator());
+    const std::vector<Date>& dates() const;
+    const std::vector<Time>& times() const;
+    const std::vector<Real>& data() const;
+    const std::vector<Rate>& rates() const;
+    #if !defined(SWIGR)
+    std::vector<std::pair<Date,Rate> > nodes() const;
+    #endif
+};
+
+template <class Interpolator>
+class InterpolatedYoYInflationCurve : public YoYInflationTermStructure {
+  public:
+    InterpolatedYoYInflationCurve(const Date& referenceDate,
+                                   const Calendar& calendar,
+                                   const DayCounter& dayCounter,
+                                   const Period& lag,
+                                   Frequency frequency,
+                                   bool indexIsInterpolated,
+                                   const Handle<YieldTermStructure>& yTS,
+                                   const std::vector<Date>& dates,
+                                   const std::vector<Rate>& rates,
+                                   const Interpolator &interpolator
+                                                        = Interpolator());
+    const std::vector<Date>& dates() const;
+    const std::vector<Time>& times() const;
+    const std::vector<Real>& data() const;
+    const std::vector<Rate>& rates() const;
+    #if !defined(SWIGR)
+    std::vector<std::pair<Date,Rate> > nodes() const;
+    #endif
+};
+
+%template(ZeroInflationCurve) InterpolatedZeroInflationCurve<Linear>;
+%template(YoYInflationCurve) InterpolatedYoYInflationCurve<Linear>;
 
 #endif

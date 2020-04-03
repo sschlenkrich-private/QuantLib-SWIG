@@ -40,11 +40,6 @@ using QuantLib::Secant;
 
 %define DeclareSolver(SolverName)
 class SolverName {
-    #if defined(SWIGRUBY)
-    %rename("maxEvaluations=")      setMaxEvaluations;
-    %rename("lowerBound=")          setLowerBound;
-    %rename("upperBound=")          setUpperBound;
-    #endif
   public:
     void setMaxEvaluations(Size evaluations);
     void setLowerBound(Real lowerBound);
@@ -59,16 +54,6 @@ class SolverName {
         Real solve(PyObject* function, Real xAccuracy,
                    Real guess, Real xMin, Real xMax) {
             UnaryFunction f(function);
-            return self->solve(f, xAccuracy, guess, xMin, xMax);
-        }
-        #elif defined(SWIGRUBY)
-        Real solve(Real xAccuracy, Real guess, Real step) {
-            UnaryFunction f;
-            return self->solve(f, xAccuracy, guess, step);
-        }
-        Real solve(Real xAccuracy, Real guess,
-                   Real xMin, Real xMax) {
-            UnaryFunction f;
             return self->solve(f, xAccuracy, guess, xMin, xMax);
         }
         #elif defined(SWIGJAVA) || defined(SWIGCSHARP)
@@ -87,6 +72,7 @@ class SolverName {
 };
 %enddef
 
+
 // Keep this list in sync with bondfunctions.i yield solvers.
 // Actual solvers
 DeclareSolver(Brent);
@@ -99,6 +85,47 @@ DeclareSolver(Secant);
 // these two need f.derivative()
 DeclareSolver(Newton);
 DeclareSolver(NewtonSafe);
+#elif defined(SWIGJAVA) || defined(SWIGCSHARP)
+%{
+class NFunctAndDer {
+  public:
+    NFunctAndDer(const UnaryFunction& function,
+                 const UnaryFunction& derivative)
+    : f_(function), d_(derivative) {}
+           
+    Real operator()(Real x) const { return f_(x); }
+    Real derivative(Real x) const { return d_(x); }
+  private:          
+    UnaryFunction f_, d_;
+};
+%}
+%ignore NFunctAndDer;
+
+%define DeclareJavaNewtonSolver(SolverName)
+class SolverName {
+  public:
+    void setMaxEvaluations(Size evaluations);
+    void setLowerBound(Real lowerBound);
+    void setUpperBound(Real upperBound);
+    %extend {
+        Real solve(UnaryFunctionDelegate* function,
+                   UnaryFunctionDelegate* derivative,
+                   Real xAccuracy, Real guess, Real step) {
+            UnaryFunction f(function), d(derivative);            
+            return self->solve(NFunctAndDer(f, d), xAccuracy, guess, step);
+        }
+        Real solve(UnaryFunctionDelegate* function,
+                   UnaryFunctionDelegate* derivative,         
+                   Real xAccuracy, Real guess, Real xMin, Real xMax) {
+            UnaryFunction f(function), d(derivative);            
+            return self->solve(NFunctAndDer(f, d), xAccuracy, guess, xMin, xMax);
+        }
+    }
+};
+%enddef
+
+DeclareJavaNewtonSolver(Newton);
+DeclareJavaNewtonSolver(NewtonSafe);
 #endif
 
 
@@ -154,10 +181,9 @@ class NonhomogeneousBoundaryConstraint : public Constraint {
 using QuantLib::EndCriteria;
 %}
 
+%shared_ptr(EndCriteria)
 class EndCriteria {
-    #if defined(SWIGRUBY)
-    %rename("setPositiveOptimization!") setPositiveOptimization;
-    #elif defined(SWIGCSHARP)
+    #if defined(SWIGCSHARP)
     %rename(call) operator();
     #elif defined(SWIGPYTHON)
     %rename(NoCriteria) None;
@@ -355,17 +381,6 @@ using QuantLib::Problem;
                 OptimizationMethod& m, EndCriteria &e,
                 Array &iv) {
         PyCostFunction f(function);
-        Problem p(f,c,iv);
-        m.minimize(p, e);
-        return p.currentValue();
-    }
-}
-#elif defined(SWIGRUBY)
-%extend Optimizer {
-    Array solve(Constraint& c, OptimizationMethod& m,
-                EndCriteria &e,
-                Array &iv) {
-        RubyCostFunction f;
         Problem p(f,c,iv);
         m.minimize(p, e);
         return p.currentValue();

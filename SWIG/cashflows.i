@@ -3,7 +3,7 @@
  Copyright (C) 2003, 2004, 2005, 2006, 2007, 2008, 2009 StatPro Italia srl
  Copyright (C) 2005 Dominic Thuillier
  Copyright (C) 2010, 2011 Lluis Pujol Bajador
- Copyright (C) 2017, 2018 Matthias Lungwitz
+ Copyright (C) 2017, 2018, 2019 Matthias Lungwitz
 
  This file is part of QuantLib, a free-software/open-source library
  for financial quantitative analysts and developers - http://quantlib.org/
@@ -61,9 +61,9 @@ using QuantLib::Redemption;
 using QuantLib::AmortizingPayment;
 using QuantLib::Coupon;
 using QuantLib::FixedRateCoupon;
-using QuantLib::IborCoupon;
 using QuantLib::Leg;
 using QuantLib::FloatingRateCoupon;
+using QuantLib::OvernightIndexedCoupon;
 %}
 
 %shared_ptr(SimpleCashFlow)
@@ -170,6 +170,26 @@ class FloatingRateCoupon : public Coupon {
     }
 %}
 
+%shared_ptr(OvernightIndexedCoupon)
+class OvernightIndexedCoupon : public FloatingRateCoupon {
+  public:
+    OvernightIndexedCoupon(
+                const Date& paymentDate,
+                Real nominal,
+                const Date& startDate,
+                const Date& endDate,
+                const boost::shared_ptr<OvernightIndex>& overnightIndex,
+                Real gearing = 1.0,
+                Spread spread = 0.0,
+                const Date& refPeriodStart = Date(),
+                const Date& refPeriodEnd = Date(),
+                const DayCounter& dayCounter = DayCounter(),
+                bool telescopicValueDates = false);
+    const std::vector<Date>& fixingDates() const;
+    const std::vector<Time>& dt() const;
+    const std::vector<Rate>& indexFixings() const;
+    const std::vector<Date>& valueDates() const;
+};
 
 %{
 using QuantLib::CappedFlooredCoupon;
@@ -196,6 +216,11 @@ class CappedFlooredCoupon : public FloatingRateCoupon {
 
 // specialized floating-rate coupons
 
+%{
+using QuantLib::IborCoupon;
+using QuantLib::CappedFlooredIborCoupon;
+%}
+
 %shared_ptr(IborCoupon)
 class IborCoupon : public FloatingRateCoupon {
     #if !defined(SWIGJAVA) && !defined(SWIGCSHARP)
@@ -209,9 +234,33 @@ class IborCoupon : public FloatingRateCoupon {
                Real gearing = 1.0, Spread spread = 0.0,
                const Date& refPeriodStart = Date(),
                const Date& refPeriodEnd = Date(),
-               const DayCounter& dayCounter = DayCounter());
+               const DayCounter& dayCounter = DayCounter(),
+               bool isInArrears = false,
+               const Date& exCouponDate = Date());
+    static void createAtParCoupons();
+    static void createIndexedCoupons();
+    static bool usingAtParCoupons();
 };
 
+%shared_ptr(CappedFlooredIborCoupon)
+class CappedFlooredIborCoupon : public CappedFlooredCoupon {
+    #if !defined(SWIGJAVA) && !defined(SWIGCSHARP)
+    %feature("kwargs") CappedFlooredIborCoupon;
+    #endif
+  public:
+    CappedFlooredIborCoupon(const Date& paymentDate, Real nominal,
+                            const Date& startDate, const Date& endDate,
+                            Integer fixingDays,
+                            boost::shared_ptr<IborIndex>& index,
+                            Real gearing = 1.0, Spread spread = 0.0,
+                            const Rate cap = Null<Rate>(),
+                            const Rate floor = Null<Rate>(),
+                            const Date& refPeriodStart = Date(),
+                            const Date& refPeriodEnd = Date(),
+                            const DayCounter& dayCounter = DayCounter(),
+                            bool isInArrears = false,
+                            const Date& exCouponDate = Date());
+};
 
 %{
 using QuantLib::IborCouponPricer;
@@ -255,7 +304,8 @@ class CmsCoupon : public FloatingRateCoupon {
               const Date& refPeriodStart = Date(),
               const Date& refPeriodEnd = Date(),
               const DayCounter& dayCounter = DayCounter(),
-              bool isInArrears = false);
+              bool isInArrears = false,
+              const Date& exCouponDate = Date());
 };
 
 %shared_ptr(CmsSpreadCoupon)
@@ -275,7 +325,8 @@ class CmsSpreadCoupon : public FloatingRateCoupon {
                     const Date& refPeriodStart = Date(),
                     const Date& refPeriodEnd = Date(),
                     const DayCounter& dayCounter = DayCounter(),
-                    bool isInArrears = false);
+                    bool isInArrears = false,
+                    const Date& exCouponDate = Date());
 };
 
 %{
@@ -297,6 +348,14 @@ class CmsCouponPricer : public FloatingRateCouponPricer {
     void setSwaptionVolatility(const Handle<SwaptionVolatilityStructure>& v =
                                       Handle<SwaptionVolatilityStructure>());
 };
+
+#if defined(SWIGCSHARP)
+SWIG_STD_VECTOR_ENHANCED( boost::shared_ptr<CmsCouponPricer> )
+#endif
+namespace std {
+    %template(CmsCouponPricerVector)
+        vector<boost::shared_ptr<CmsCouponPricer> >;     
+}
 
 class GFunctionFactory {
   private:
@@ -343,7 +402,8 @@ class CappedFlooredCmsCoupon: public CappedFlooredCoupon {
                   const Date& refPeriodStart = Date(),
                   const Date& refPeriodEnd = Date(),
                   const DayCounter& dayCounter = DayCounter(),
-                  bool isInArrears = false);
+                  bool isInArrears = false,
+                  const Date& exCouponDate = Date());
 };
 
 %shared_ptr(CappedFlooredCmsSpreadCoupon)
@@ -363,12 +423,42 @@ class CappedFlooredCmsSpreadCoupon: public CappedFlooredCoupon {
                   const Date& refPeriodStart = Date(),
                   const Date& refPeriodEnd = Date(),
                   const DayCounter& dayCounter = DayCounter(),
-                  bool isInArrears = false);
+                  bool isInArrears = false,
+                  const Date& exCouponDate = Date());
 };
+
+%rename (LinearTsrPricerSettings) LinearTsrPricer::Settings;
+%feature ("flatnested") Settings;
 
 %shared_ptr(LinearTsrPricer)
 class LinearTsrPricer : public CmsCouponPricer {
   public:
+    struct Settings {
+
+        Settings();
+        Settings &withRateBound(const Real lowerRateBound = 0.0001,
+                                const Real upperRateBound = 2.0000);
+        Settings &withVegaRatio(const Real vegaRatio = 0.01);                                
+        Settings &withVegaRatio(const Real vegaRatio,
+                                const Real lowerRateBound,
+                                const Real upperRateBound);
+        Settings &withPriceThreshold(const Real priceThreshold = 1.0E-8);
+        Settings &withPriceThreshold(const Real priceThreshold,
+                                     const Real lowerRateBound,
+                                     const Real upperRateBound);
+        Settings &withBSStdDevs(const Real stdDevs = 3.0);
+        Settings &withBSStdDevs(const Real stdDevs,
+                        const Real lowerRateBound,
+                        const Real upperRateBound);
+        enum Strategy {
+            RateBound,
+            VegaRatio,
+            PriceThreshold,
+            BSStdDevs
+        };
+        
+    };
+  
     LinearTsrPricer(
             const Handle<SwaptionVolatilityStructure> &swaptionVol,
             const Handle<Quote> &meanReversion,
@@ -414,12 +504,20 @@ Leg _FixedRateLeg(const Schedule& schedule,
                   const std::vector<Real>& nominals,
                   const std::vector<Rate>& couponRates,
                   BusinessDayConvention paymentAdjustment = Following,
-                  const DayCounter& firstPeriodDayCount = DayCounter()) {
+                  const DayCounter& firstPeriodDayCount = DayCounter(),
+                  const Period& exCouponPeriod = Period(),
+                  const Calendar& exCouponCalendar = Calendar(),
+                  BusinessDayConvention exCouponConvention = Unadjusted,
+                  bool exCouponEndOfMonth = false) {
     return QuantLib::FixedRateLeg(schedule)
         .withNotionals(nominals)
         .withCouponRates(couponRates,dayCount)
         .withPaymentAdjustment(paymentAdjustment)
-        .withFirstPeriodDayCounter(firstPeriodDayCount);
+        .withFirstPeriodDayCounter(firstPeriodDayCount)
+        .withExCouponPeriod(exCouponPeriod,
+                            exCouponCalendar,
+                            exCouponConvention,
+                            exCouponEndOfMonth);
 }
 %}
 #if !defined(SWIGJAVA) && !defined(SWIGCSHARP)
@@ -431,7 +529,11 @@ Leg _FixedRateLeg(const Schedule& schedule,
                   const std::vector<Real>& nominals,
                   const std::vector<Rate>& couponRates,
                   BusinessDayConvention paymentAdjustment = Following,
-                  const DayCounter& firstPeriodDayCount = DayCounter());
+                  const DayCounter& firstPeriodDayCount = DayCounter(),
+                  const Period& exCouponPeriod = Period(),
+                  const Calendar& exCouponCalendar = Calendar(),
+                  BusinessDayConvention exCouponConvention = Unadjusted,
+                  bool exCouponEndOfMonth = false);
 
 %{
 Leg _IborLeg(const std::vector<Real>& nominals,
@@ -444,7 +546,11 @@ Leg _IborLeg(const std::vector<Real>& nominals,
              const std::vector<Spread>& spreads = std::vector<Spread>(),
              const std::vector<Rate>& caps = std::vector<Rate>(),
              const std::vector<Rate>& floors = std::vector<Rate>(),
-             bool isInArrears = false) {
+             bool isInArrears = false,
+             const Period& exCouponPeriod = Period(),
+             const Calendar& exCouponCalendar = Calendar(),
+             BusinessDayConvention exCouponConvention = Unadjusted,
+             bool exCouponEndOfMonth = false) {
     boost::shared_ptr<IborIndex> libor =
         boost::dynamic_pointer_cast<IborIndex>(index);
     return QuantLib::IborLeg(schedule, libor)
@@ -456,7 +562,11 @@ Leg _IborLeg(const std::vector<Real>& nominals,
         .withSpreads(spreads)
         .withCaps(caps)
         .withFloors(floors)
-        .inArrears(isInArrears);
+        .inArrears(isInArrears)
+        .withExCouponPeriod(exCouponPeriod,
+                            exCouponCalendar,
+                            exCouponConvention,
+                            exCouponEndOfMonth);
 }
 %}
 #if !defined(SWIGJAVA) && !defined(SWIGCSHARP)
@@ -473,7 +583,44 @@ Leg _IborLeg(const std::vector<Real>& nominals,
              const std::vector<Spread>& spreads = std::vector<Spread>(),
              const std::vector<Rate>& caps = std::vector<Rate>(),
              const std::vector<Rate>& floors = std::vector<Rate>(),
-             bool isInArrears = false);
+             bool isInArrears = false,
+             const Period& exCouponPeriod = Period(),
+             const Calendar& exCouponCalendar = Calendar(),
+             BusinessDayConvention exCouponConvention = Unadjusted,
+             bool exCouponEndOfMonth = false);
+
+%{
+Leg _OvernightLeg(const std::vector<Real>& nominals,
+             const Schedule& schedule,
+             const boost::shared_ptr<Index>& index,
+             const DayCounter& paymentDayCounter = DayCounter(),
+             const BusinessDayConvention paymentConvention = Following,
+             const std::vector<Real>& gearings = std::vector<Real>(),
+             const std::vector<Spread>& spreads = std::vector<Spread>(),
+             bool telescopicValueDates = false) {
+    boost::shared_ptr<OvernightIndex> overnightindex =
+        boost::dynamic_pointer_cast<OvernightIndex>(index);
+    return QuantLib::OvernightLeg(schedule, overnightindex)
+        .withNotionals(nominals)
+        .withPaymentDayCounter(paymentDayCounter)
+        .withPaymentAdjustment(paymentConvention)
+        .withGearings(gearings)
+        .withSpreads(spreads)
+        .withTelescopicValueDates(telescopicValueDates);
+}
+%}
+#if !defined(SWIGJAVA) && !defined(SWIGCSHARP)
+%feature("kwargs") _OvernightLeg;
+#endif
+%rename(OvernightLeg) _OvernightLeg;
+Leg _OvernightLeg(const std::vector<Real>& nominals,
+             const Schedule& schedule,
+             const boost::shared_ptr<Index>& index,
+             const DayCounter& paymentDayCounter = DayCounter(),
+             const BusinessDayConvention paymentConvention = Following,
+             const std::vector<Real>& gearings = std::vector<Real>(),
+             const std::vector<Spread>& spreads = std::vector<Spread>(),
+             bool telescopicValueDates = false);
 
 %{
 Leg _CmsLeg(const std::vector<Real>& nominals,
@@ -628,6 +775,38 @@ class CashFlows {
         nextCashFlowDate(const Leg& leg,
                          bool includeSettlementDateFlows,
                          Date settlementDate = Date());
+
+    %extend {
+
+        static boost::shared_ptr<CashFlow>
+        previousCashFlow(const Leg& leg,
+                         bool includeSettlementDateFlows,
+                         Date settlementDate = Date()) {
+            Leg::const_reverse_iterator i =
+                QuantLib::CashFlows::previousCashFlow(
+                    leg, includeSettlementDateFlows, settlementDate);
+
+            if (i == leg.rend())
+                return boost::shared_ptr<CashFlow>();
+            else
+                return *i;
+        }
+
+        static boost::shared_ptr<CashFlow>
+        nextCashFlow(const Leg& leg,
+                     bool includeSettlementDateFlows,
+                     Date settlementDate = Date()) {
+            Leg::const_iterator i =
+                QuantLib::CashFlows::nextCashFlow(
+                    leg, includeSettlementDateFlows, settlementDate);
+
+            if (i == leg.end())
+                return boost::shared_ptr<CashFlow>();
+            else
+                return *i;
+        }
+
+    }
 
     %extend {
         static Real npv(
