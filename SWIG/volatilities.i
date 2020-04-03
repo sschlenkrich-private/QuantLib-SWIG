@@ -332,7 +332,6 @@ class NoExceptLocalVolSurface : public LocalVolTermStructure {
 
 %{
 using QuantLib::FixedLocalVolSurface;
-typedef boost::shared_ptr<LocalVolTermStructure> FixedLocalVolSurfacePtr;
 %}
 
 %shared_ptr(FixedLocalVolSurface);
@@ -357,14 +356,8 @@ class FixedLocalVolSurface : public LocalVolTermStructure {
             // we hard-code linear interpolation and flat extrapolation with this interface
             return new FixedLocalVolSurface(referenceDate, times, strikes, boost::make_shared<Matrix>(localVolMatrix),dayCounter);
         }
-	}
 
-        // wrap C++ object back into SWIG object
-        //FixedLocalVolSurfacePtr( const boost::shared_ptr<LocalVolTermStructure>&  lVolTS ) {
-        //    boost::shared_ptr<FixedLocalVolSurface> resVolTS = boost::dynamic_pointer_cast<FixedLocalVolSurface>(lVolTS);
-        //    QL_REQUIRE(resVolTS, "FixedLocalVolSurface required");
-        //    return new FixedLocalVolSurfacePtr( resVolTS );
-        //}
+	}
         
 	// inspectors
     const std::vector<Time> times();
@@ -372,6 +365,16 @@ class FixedLocalVolSurface : public LocalVolTermStructure {
     const Matrix localVolMatrix();
         
 };
+
+// down-cast a local vol term structure from SLV model
+%inline %{
+    boost::shared_ptr<FixedLocalVolSurface> as_FixedLocalVolSurface(
+	    const boost::shared_ptr<LocalVolTermStructure>&  lVolTS) {
+            boost::shared_ptr<FixedLocalVolSurface> resVolTS = boost::dynamic_pointer_cast<FixedLocalVolSurface>(lVolTS);
+            QL_REQUIRE(resVolTS, "FixedLocalVolSurface required");
+            return resVolTS;
+	}
+%}
 
 
 // constant caplet constant term structure
