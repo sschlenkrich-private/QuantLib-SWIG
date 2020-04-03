@@ -296,11 +296,6 @@ namespace std {
         vector<boost::shared_ptr<SwapIndex> >;     
 }
 
-namespace std {
-    %template(SwapIndexVector) vector<boost::shared_ptr<SwapIndex> >;
-}
-
-
 
 %define export_swap_instance(Name)
 %{
