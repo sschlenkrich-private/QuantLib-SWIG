@@ -27,6 +27,7 @@
 %include marketelements.i
 %include interpolation.i
 %include indexes.i
+%include volatilities.i
 
 %include multiassetmodels.i
 %include quasigaussian.i
@@ -35,8 +36,10 @@
 %{
 
 #include <ql/experimental/templatemodels/hybrid/hybridmodels.hpp>
+#include <ql/experimental/templatemodels/hybrid/localvolassetmodel.hpp>
 
 using QuantLib::AssetModel;
+using QuantLib::LocalvolAssetModel;
 using QuantLib::QuasiGaussianModel;
 using QuantLib::HybridModel;
 using QuantLib::SpreadModel;
@@ -59,6 +62,19 @@ namespace std {
     %template(AssetModelVector) vector<boost::shared_ptr<AssetModel> >;
 }
 
+%shared_ptr(LocalvolAssetModel);
+class LocalvolAssetModel : public AssetModel {
+public:
+	LocalvolAssetModel(
+	    const Real                          X0,
+	    const Handle<LocalVolTermStructure> localvol);
+               
+};
+
+namespace std {
+    %template(LocalvolAssetModelVector) vector<boost::shared_ptr<LocalvolAssetModel> >;
+}
+
 
 %shared_ptr(HybridModel);
 class HybridModel : public RealStochasticProcess {
@@ -69,7 +85,10 @@ public:
         const std::vector<std::string>&                                  forAliases,
         const std::vector< boost::shared_ptr< AssetModel > >&            forAssetModels,
         const std::vector< boost::shared_ptr< RealStochasticProcess > >& forRatesModels,
-        const std::vector< std::vector<Real> >&                          correlations );	
+        const std::vector< std::vector<Real> >&                          correlations,
+        const std::vector<Real>&                                         hybAdjTimes = std::vector<Real>(),
+		const std::vector< std::vector<Real> >&	                         hybVolAdj   = std::vector< std::vector<Real> >()
+		);	
 
 	// inspectors
 	const std::string domAlias();
@@ -80,6 +99,14 @@ public:
 	const std::vector< std::vector<Real> >& correlations();
 	const std::vector< std::vector<Real> >& L();
 	const std::vector<size_t>& modelsStartIdx();
+
+	const std::vector<Real>&                hybAdjTimes();
+	const std::vector< std::vector<Real> >& localVol();	 
+	const std::vector< std::vector<Real> >& hybrdVol();	 
+	const std::vector< std::vector<Real> >& hybVolAdj();	 
+
+    Real hybridVolAdjuster(size_t forIdx, Real t);
+    void recalculateHybridVolAdjuster(const std::vector<Real>& hybAdjTimes = std::vector<Real>());
 
 	virtual Size size();
 	virtual Size factors();
