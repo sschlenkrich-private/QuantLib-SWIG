@@ -52,11 +52,11 @@ using QuantLib::QGLocalvolModel;
 %}
 
 // we need to tell SWIG to export shared_ptr with new classes
-%template(QGLocalvolModelBase) boost::shared_ptr<QGLocalvolModel>;
+%template(QGLocalvolModelBase) ext::shared_ptr<QGLocalvolModel>;
 
 // we need to tell C++ that our new pointer-based classes are type names
 %{
-typedef boost::shared_ptr<QGLocalvolModel> QGLocalvolModelPtr;
+typedef ext::shared_ptr<QGLocalvolModel> QGLocalvolModelPtr;
 %}
 
 
@@ -107,7 +107,7 @@ class QuasiGaussianModel : public RealStochasticProcess {
 class QGSwaprateModel : public RealStochasticProcess {
   public:
 	QGSwaprateModel (
-		const boost::shared_ptr<QuasiGaussianModel>& model,
+		const ext::shared_ptr<QuasiGaussianModel>& model,
 		const std::vector<Real>&    floatTimes,      // T[1], ..., T[M]
 		const std::vector<Real>&    floatWeights,    // u[1], ..., u[M]
 		const std::vector<Real>&    fixedTimes,      // T[1], ..., T[N]
@@ -137,7 +137,7 @@ class QGSwaprateModel : public RealStochasticProcess {
 %shared_ptr(QGAverageSwaprateModel);
 class QGAverageSwaprateModel : public RealStochasticProcess {
   public:
-	QGAverageSwaprateModel ( const boost::shared_ptr<QGSwaprateModel>& model );
+	QGAverageSwaprateModel ( const ext::shared_ptr<QGSwaprateModel>& model );
 	
     // inspectors
     Real sigma() ;
@@ -158,9 +158,9 @@ class QGAverageSwaprateModel : public RealStochasticProcess {
 class QGCalibrator {
   public:
     QGCalibrator(
-	    const boost::shared_ptr<QuasiGaussianModel>& model,
+	    const ext::shared_ptr<QuasiGaussianModel>& model,
 		const Handle<SwaptionVolatilityStructure>&  volTS,
-		const std::vector< boost::shared_ptr<SwapIndex> >&  swapIndices,
+		const std::vector< ext::shared_ptr<SwapIndex> >&  swapIndices,
 		const Real                                  modelTimesStepSize,
         const bool                                  useExpectedXY,
         const Real                                  sigmaMax,
@@ -179,7 +179,7 @@ class QGCalibrator {
 	                   Real                                       epsfcn = 1.0e-4 );
 
 	// inspectors
-	const boost::shared_ptr<QuasiGaussianModel> calibratedModel();
+	const ext::shared_ptr<QuasiGaussianModel> calibratedModel();
 	const std::vector<std::string>& debugLog();
 	void acceptCalibration();
 };
@@ -188,9 +188,9 @@ class QGCalibrator {
 class QGMonteCarloCalibrator {
   public:
     QGMonteCarloCalibrator(
-	    const boost::shared_ptr<QuasiGaussianModel>& model,
+	    const ext::shared_ptr<QuasiGaussianModel>& model,
 		const Handle<SwaptionVolatilityStructure>&  volTS,
-		const std::vector< boost::shared_ptr<SwapIndex> >&  swapIndices,
+		const std::vector< ext::shared_ptr<SwapIndex> >&  swapIndices,
 		const Real                                  monteCarloStepSize,
         const Size                                  monteCarloPaths,
         const Real                                  sigmaMax,
@@ -210,15 +210,15 @@ class QGMonteCarloCalibrator {
 	                   Real                                       epsfcn = 1.0e-4 );
 
 	// inspectors
-	const boost::shared_ptr<QuasiGaussianModel> calibratedModel();
-    const boost::shared_ptr<RealMCSimulation> mcSimulation();
+	const ext::shared_ptr<QuasiGaussianModel> calibratedModel();
+    const ext::shared_ptr<RealMCSimulation> mcSimulation();
 	const std::vector<std::string>& debugLog();
 	void acceptCalibration();
 
 };
 
 %rename(QGLocalvolModel) QGLocalvolModelPtr;
-class QGLocalvolModelPtr : public boost::shared_ptr<QGLocalvolModel> {
+class QGLocalvolModelPtr : public ext::shared_ptr<QGLocalvolModel> {
   public:
     %extend {
         QGLocalvolModelPtr(
@@ -228,7 +228,7 @@ class QGLocalvolModelPtr : public boost::shared_ptr<QGLocalvolModel> {
 			const Real                                             chi,               // 0.03
 			const Real                                             theta,             // 0.1
 			const Real                                             eta,               // 0.7
-			const boost::shared_ptr<SwapIndex>&                    swapIndex,         // EuriborSwapIsdaFixA
+			const ext::shared_ptr<SwapIndex>&                      swapIndex,         // EuriborSwapIsdaFixA
 			const std::vector<Real>&                               times,             // [1.0,2.0,..,10.0]
 			const std::vector<Real>&                               stdDevGrid,        // [-3.0, ..., 3.0] (for non-SLV models) or [] (for SLV model)
 			const size_t                                           nStrikes,          // 101 or 201 (only for SLV model)
@@ -240,7 +240,7 @@ class QGLocalvolModelPtr : public boost::shared_ptr<QGLocalvolModel> {
 			const size_t                                           debugLevel = 1) {
 		    std::string flavorUpperCase = flavor;
 		    boost::to_upper(flavorUpperCase);
-            boost::shared_ptr<SwapIndex> swapIdx_sp =  boost::dynamic_pointer_cast<SwapIndex>(swapIndex);
+            ext::shared_ptr<SwapIndex> swapIdx_sp =  boost::dynamic_pointer_cast<SwapIndex>(swapIndex);
             if (flavorUpperCase.compare("SLV") == 0) {            
                 return new QGLocalvolModelPtr(   
                     new QuantLib::QGLSVModel(hYTS,volTS,chi,theta,eta,swapIdx_sp,times,nStrikes,
@@ -290,7 +290,7 @@ class QGLocalvolModelPtr : public boost::shared_ptr<QGLocalvolModel> {
             boost::dynamic_pointer_cast<QGLocalvolModel>(*self)->simulateAndCalibrate();
         }
 
-        const boost::shared_ptr<RealMCSimulation> simulation() { 
+        const ext::shared_ptr<RealMCSimulation> simulation() { 
             return boost::dynamic_pointer_cast<QGLocalvolModel>(*self)->simulation();
         }
 

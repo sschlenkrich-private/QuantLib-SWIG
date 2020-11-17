@@ -48,7 +48,7 @@ using QuantLib::SwaptionCashFlows;
 
 class SwapCashFlows {
 public:
-	SwapCashFlows ( const boost::shared_ptr<VanillaSwap>& swap,
+	SwapCashFlows ( const ext::shared_ptr<VanillaSwap>& swap,
 		            const Handle<YieldTermStructure>&   discountCurve,
 					bool                                contTenorSpread = true );
 	// inspectors
@@ -61,7 +61,7 @@ public:
 
 class SwaptionCashFlows : public SwapCashFlows {
 public:
-   	SwaptionCashFlows ( const boost::shared_ptr<Swaption>&  swaption,
+   	SwaptionCashFlows ( const ext::shared_ptr<Swaption>&  swaption,
 		                const Handle<YieldTermStructure>& discountCurve,
 					    bool                              contTenorSpread = true );
 	const std::vector<Real>& exerciseTimes();

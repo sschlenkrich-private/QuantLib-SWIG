@@ -38,10 +38,10 @@ using QuantLib::MultiAssetBSModel;
 using QuantLib::MultiAssetSLVModel;
 %}
 
-%template(RealStochasticProcessBase) boost::shared_ptr<RealStochasticProcess>;
+%template(RealStochasticProcessBase) ext::shared_ptr<RealStochasticProcess>;
 
 namespace std {
-    %template(RealStochasticProcessVector) vector<boost::shared_ptr<RealStochasticProcess> >;
+    %template(RealStochasticProcessVector) vector<ext::shared_ptr<RealStochasticProcess> >;
 }
 
 
@@ -68,20 +68,20 @@ class MultiAssetBSModel : public RealStochasticProcess {
 public:
 	MultiAssetBSModel(const Handle<YieldTermStructure>&                                               termStructure,
 		              const std::vector<std::string>&                                                 aliases,
-		              const std::vector<boost::shared_ptr<QuantLib::GeneralizedBlackScholesProcess>>& processes,
+		              const std::vector<ext::shared_ptr<QuantLib::GeneralizedBlackScholesProcess>>&   processes,
 		              const std::vector< std::vector<Real> >&                                         correlations);
 	MultiAssetBSModel(const Handle<YieldTermStructure>&                                               termStructure,
 		              const std::vector<std::string>&                                                 aliases,
-		              const std::vector<boost::shared_ptr<QuantLib::GeneralizedBlackScholesProcess>>& processes);
+		              const std::vector<ext::shared_ptr<QuantLib::GeneralizedBlackScholesProcess>>&   processes);
 	
 	//This constructor enables to directly pass a local vol term structure, i.e. an InterpolatedLocalVolSurface
 	MultiAssetBSModel(const Handle<YieldTermStructure>&                                 termStructure,
 		              const std::vector<std::string>&                                   aliases,
-		              const std::vector<boost::shared_ptr<QuantLib::LocalVolSurface>>&	localVolSurfaces,
+		              const std::vector<ext::shared_ptr<QuantLib::LocalVolSurface>>&	localVolSurfaces,
 		              const std::vector< std::vector<Real> >&                           correlations);
 	MultiAssetBSModel(const Handle<YieldTermStructure>&                                 termStructure,
 		              const std::vector<std::string>&                                   aliases,
-		              const std::vector<boost::shared_ptr<QuantLib::LocalVolSurface>>&	localVolSurfaces);
+		              const std::vector<ext::shared_ptr<QuantLib::LocalVolSurface>>&	localVolSurfaces);
 
 	virtual Size size();
 	// stochastic factors (underlying, volatilities and spreads)
@@ -95,11 +95,11 @@ class MultiAssetSLVModel : public RealStochasticProcess {
 public:
 	MultiAssetSLVModel(const Handle<YieldTermStructure>&                                  termStructure,
 		               const std::vector<std::string>&                                    aliases,
-		               const std::vector<boost::shared_ptr<QuantLib::HestonSLVProcess>>&  processes,
+		               const std::vector<ext::shared_ptr<QuantLib::HestonSLVProcess>>&    processes,
 		               const std::vector< std::vector<Real> >&                            correlations);
 	MultiAssetSLVModel(const Handle<YieldTermStructure>&                                  termStructure,
 		               const std::vector<std::string>&                                    aliases,
-		               const std::vector<boost::shared_ptr<QuantLib::HestonSLVProcess>>&  processes);
+		               const std::vector<ext::shared_ptr<QuantLib::HestonSLVProcess>>&    processes);
 
 	virtual Size size();
 	// stochastic factors (underlying, volatilities and spreads)

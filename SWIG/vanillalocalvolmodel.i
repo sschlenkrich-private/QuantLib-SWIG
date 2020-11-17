@@ -44,14 +44,14 @@ using QuantLib::VanillaLocalVolSwaptionVTS;
 %}
 
 // we need to tell SWIG to export shared_ptr with new classes
-// %template(VanillaLocalVolModelBase) boost::shared_ptr<VanillaLocalVolModel>;
-// %template(VanillaLocalVolModelSmileSectionBase) boost::shared_ptr<VanillaLocalVolModelSmileSection>;
+// %template(VanillaLocalVolModelBase) ext::shared_ptr<VanillaLocalVolModel>;
+// %template(VanillaLocalVolModelSmileSectionBase) ext::shared_ptr<VanillaLocalVolModelSmileSection>;
 
 // we need to tell C++ that our new pointer-based classes are type names
 // %{
-// typedef boost::shared_ptr<VanillaLocalVolModel> VanillaLocalVolModelPtr;
-// typedef boost::shared_ptr<VanillaLocalVolModelSmileSection> VanillaLocalVolModelSmileSectionPtr;
-// typedef boost::shared_ptr<VanillaLocalVolSwaptionVTS> VanillaLocalVolSwaptionVTSPtr;
+// typedef ext::shared_ptr<VanillaLocalVolModel> VanillaLocalVolModelPtr;
+// typedef ext::shared_ptr<VanillaLocalVolModelSmileSection> VanillaLocalVolModelSmileSectionPtr;
+// typedef ext::shared_ptr<VanillaLocalVolSwaptionVTS> VanillaLocalVolSwaptionVTSPtr;
 // %}
 
 // we use an object adapter pattern to extend base class interface by new underlying class methods 
@@ -120,13 +120,13 @@ class VanillaLocalVolModelSmileSection : public SmileSection {
 			const Real                                    extrapolationRelativeStrike,
 			const Real                                    extrapolationSlope,
 			bool                                          vegaWeighted = false,
-			const boost::shared_ptr<EndCriteria>&         endCriteria = boost::shared_ptr<EndCriteria>(new EndCriteria(100, 10, 1.0e-6, 1.0e-6, 1.0e-6)),
-			const boost::shared_ptr<OptimizationMethod>&  method = boost::shared_ptr<OptimizationMethod>(new LevenbergMarquardt(1.0e-6, 1.0e-6, 1.0e-6)),
+			const ext::shared_ptr<EndCriteria>&           endCriteria = ext::shared_ptr<EndCriteria>(new EndCriteria(100, 10, 1.0e-6, 1.0e-6, 1.0e-6)),
+			const ext::shared_ptr<OptimizationMethod>&    method = ext::shared_ptr<OptimizationMethod>(new LevenbergMarquardt(1.0e-6, 1.0e-6, 1.0e-6)),
 			const DayCounter&                             dc = Actual365Fixed(),
 			const Date&                                   referenceDate = Date(),
 			const VolatilityType                          type = Normal,
 			const Rate                                    shift = 0.0,
-			const boost::shared_ptr<VanillaLocalVolModel>&  model = boost::shared_ptr<VanillaLocalVolModel>(),
+			const ext::shared_ptr<VanillaLocalVolModel>&  model = ext::shared_ptr<VanillaLocalVolModel>(),
 			const Real                                    minSlope = -3.0,   //  lower boundary for m in calibration
 			const Real                                    maxSlope =  3.0,   //  upper boundary for m in calibration
 			const Real                                    alpha = 1.0e-4);   //  Tikhonov alpha
@@ -135,8 +135,8 @@ class VanillaLocalVolModelSmileSection : public SmileSection {
 			const Date&                                   expiryDate,
 			const Rate&                                   forward,
 			const Volatility&                             atmVolatility,
-			const boost::shared_ptr<VanillaLocalVolModelSmileSection>& smile1,
-			const boost::shared_ptr<VanillaLocalVolModelSmileSection>& smile2,
+			const ext::shared_ptr<VanillaLocalVolModelSmileSection>& smile1,
+			const ext::shared_ptr<VanillaLocalVolModelSmileSection>& smile2,
 			const Real&                                   rho,
 			const bool                                    calcSimple = true,  // use only ATM vol for x-grid calculation
 			const DayCounter&                             dc = Actual365Fixed(),
@@ -144,14 +144,14 @@ class VanillaLocalVolModelSmileSection : public SmileSection {
 			const VolatilityType                          type = Normal,
 			const Rate                                    shift = 0.0); 
 
-        const boost::shared_ptr<VanillaLocalVolModel>&  model();
+        const ext::shared_ptr<VanillaLocalVolModel>&  model();
 
 };
 
 
 namespace std {
-    %template(VanillaLocalVolModelSmileSectionVector) vector<boost::shared_ptr<VanillaLocalVolModelSmileSection> >;
-    %template(VanillaLocalVolModelSmileSectionVectorVector) vector<vector<boost::shared_ptr<VanillaLocalVolModelSmileSection> > >;
+    %template(VanillaLocalVolModelSmileSectionVector) vector<ext::shared_ptr<VanillaLocalVolModelSmileSection> >;
+    %template(VanillaLocalVolModelSmileSectionVectorVector) vector<vector<ext::shared_ptr<VanillaLocalVolModelSmileSection> > >;
 }
 
 
@@ -160,9 +160,9 @@ class VanillaLocalVolSwaptionVTS : public SwaptionVolatilityStructure {
   public:
 		VanillaLocalVolSwaptionVTS(
 			const Handle<SwaptionVolatilityStructure>&                                              atmVolTS,
-			const std::vector< std::vector< boost::shared_ptr<VanillaLocalVolModelSmileSection> > >&  smiles,
+			const std::vector< std::vector< ext::shared_ptr<VanillaLocalVolModelSmileSection> > >&  smiles,
 			const std::vector< Period >&                                                            swapTerms,
-			const boost::shared_ptr<SwapIndex>&                                                     index);
+			const ext::shared_ptr<SwapIndex>&                                                       index);
 };
 
 

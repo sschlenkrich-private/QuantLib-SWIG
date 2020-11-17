@@ -144,7 +144,7 @@ class IborIndex : public InterestRateIndex {
 
 
 namespace std {
-    %template(IborIndexVector) vector<boost::shared_ptr<IborIndex> >;
+    %template(IborIndexVector) vector<ext::shared_ptr<IborIndex> >;
 }
 
 
@@ -289,7 +289,7 @@ class SwapIndex : public InterestRateIndex {
     ext::shared_ptr<SwapIndex> clone(const Handle<YieldTermStructure>& forwarding,
                                        const Handle<YieldTermStructure>& discounting) const;
     ext::shared_ptr<SwapIndex> clone(const Period& tenor) const;
-	boost::shared_ptr<VanillaSwap> underlyingSwap(const Date& fixingDate);
+	ext::shared_ptr<VanillaSwap> underlyingSwap(const Date& fixingDate);
 };
 
 #if defined(SWIGCSHARP)

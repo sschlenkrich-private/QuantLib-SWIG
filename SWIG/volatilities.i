@@ -460,10 +460,10 @@ class FixedLocalVolSurface : public LocalVolTermStructure {
             const DayCounter&               dayCounter ) {
             // we need to prepare strikes to match QL's interface
             QL_REQUIRE(times.size()==strikeMatrix.columns(), "mismatch between time vector and strike colums");
-            std::vector<boost::shared_ptr<std::vector<Real> > > strikes(times.size());
+            std::vector<ext::shared_ptr<std::vector<Real> > > strikes(times.size());
             // the bespoke interface requires initialising each element individually
             for (Size k=0; k<strikes.size(); ++k) {
-                strikes[k] = boost::shared_ptr<std::vector<Real> >(new std::vector<Real>(strikeMatrix.rows()));
+                strikes[k] = ext::shared_ptr<std::vector<Real> >(new std::vector<Real>(strikeMatrix.rows()));
                 for (Size i=0; i<strikes[k]->size(); ++i) strikes[k]->at(i) = strikeMatrix[i][k];
             }
             // we hard-code linear interpolation and flat extrapolation with this interface
@@ -481,9 +481,9 @@ class FixedLocalVolSurface : public LocalVolTermStructure {
 
 // down-cast a local vol term structure from SLV model
 %inline %{
-    boost::shared_ptr<FixedLocalVolSurface> as_FixedLocalVolSurface(
-	    const boost::shared_ptr<LocalVolTermStructure>&  lVolTS) {
-            boost::shared_ptr<FixedLocalVolSurface> resVolTS = boost::dynamic_pointer_cast<FixedLocalVolSurface>(lVolTS);
+    ext::shared_ptr<FixedLocalVolSurface> as_FixedLocalVolSurface(
+	    const ext::shared_ptr<LocalVolTermStructure>&  lVolTS) {
+            ext::shared_ptr<FixedLocalVolSurface> resVolTS = boost::dynamic_pointer_cast<FixedLocalVolSurface>(lVolTS);
             QL_REQUIRE(resVolTS, "FixedLocalVolSurface required");
             return resVolTS;
 	}
@@ -739,28 +739,6 @@ using QuantLib::ConstantYoYOptionletVolatility;
 %shared_ptr(ConstantYoYOptionletVolatility)
 class ConstantYoYOptionletVolatility : public YoYOptionletVolatilitySurface {
   public:
-    Real variance(Rate strike) const;
-    Volatility volatility(Rate strike) const;
-    virtual Real atmLevel() const;
-    virtual const Date& exerciseDate() const;
-    virtual VolatilityType volatilityType() const;
-    virtual Rate shift() const;
-    virtual const Date& referenceDate() const;
-    virtual Time exerciseTime() const;
-    virtual const DayCounter& dayCounter();
-    virtual Real optionPrice(Rate strike,
-                             Option::Type type = Option::Call,
-                             Real discount=1.0) const;
-    virtual Real digitalOptionPrice(Rate strike,
-                                    Option::Type type = Option::Call,
-                                    Real discount=1.0,
-                                    Real gap=1.0e-5) const;
-    virtual Real vega(Rate strike,
-                      Real discount=1.0) const;
-    virtual Real density(Rate strike,
-                         Real discount=1.0,
-                         Real gap=1.0E-4) const;
-    Volatility volatility(Rate strike, VolatilityType type, Real shift=0.0) const;
     ConstantYoYOptionletVolatility(Volatility volatility,
                                    Natural settlementDays,
                                    const Calendar &cal,
@@ -869,10 +847,10 @@ class SabrInterpolatedSmileSection : public SmileSection {
                bool isBetaFixed = false, bool isNuFixed = false,
                bool isRhoFixed = false,
                bool vegaWeighted = true,
-               const boost::shared_ptr<EndCriteria> &endCriteria =
-               boost::shared_ptr<EndCriteria>(),
-               const boost::shared_ptr<OptimizationMethod> &method =
-               boost::shared_ptr<OptimizationMethod>(),
+               const ext::shared_ptr<EndCriteria> &endCriteria =
+               ext::shared_ptr<EndCriteria>(),
+               const ext::shared_ptr<OptimizationMethod> &method =
+               ext::shared_ptr<OptimizationMethod>(),
                const DayCounter &dc = Actual365Fixed(),
                const Real shift = 0.0,
 			   const bool useNormalVols = false );
@@ -885,10 +863,10 @@ class SabrInterpolatedSmileSection : public SmileSection {
                bool isAlphaFixed = false, bool isBetaFixed = false,
                bool isNuFixed = false, bool isRhoFixed = false,
                bool vegaWeighted = true,
-               const boost::shared_ptr<EndCriteria> &endCriteria =
-               boost::shared_ptr<EndCriteria>(),
-               const boost::shared_ptr<OptimizationMethod> &method =
-               boost::shared_ptr<OptimizationMethod>(),
+               const ext::shared_ptr<EndCriteria> &endCriteria =
+               ext::shared_ptr<EndCriteria>(),
+               const ext::shared_ptr<OptimizationMethod> &method =
+               ext::shared_ptr<OptimizationMethod>(),
                const DayCounter &dc = Actual365Fixed(),
                const Real shift = 0.0,
 			   const bool useNormalVols = false );
@@ -939,10 +917,10 @@ class SviInterpolatedSmileSection : public SmileSection {
 			Real a, Real b, Real sigma, Real rho, Real m,
 			bool aIsFixed, bool bIsFixed, bool sigmaIsFixed,
 			bool rhoIsFixed, bool mIsFixed, bool vegaWeighted = true,
-            const boost::shared_ptr<EndCriteria> &endCriteria =
-                boost::shared_ptr<EndCriteria>(),
-            const boost::shared_ptr<OptimizationMethod> &method =
-                boost::shared_ptr<OptimizationMethod>(),
+            const ext::shared_ptr<EndCriteria> &endCriteria =
+                ext::shared_ptr<EndCriteria>(),
+            const ext::shared_ptr<OptimizationMethod> &method =
+                ext::shared_ptr<OptimizationMethod>(),
             const DayCounter &dc = Actual365Fixed() );
 					   
         SviInterpolatedSmileSection(
@@ -953,10 +931,10 @@ class SviInterpolatedSmileSection : public SmileSection {
             Real a, Real b, Real sigma, Real rho, Real m, 
 			bool isAFixed, bool isBFixed, bool isSigmaFixed, 
 			bool isRhoFixed, bool isMFixed,  bool vegaWeighted = true,
-            const boost::shared_ptr<EndCriteria> &endCriteria =
-                boost::shared_ptr<EndCriteria>(),
-            const boost::shared_ptr<OptimizationMethod> &method =
-                boost::shared_ptr<OptimizationMethod>(),
+            const ext::shared_ptr<EndCriteria> &endCriteria =
+                ext::shared_ptr<EndCriteria>(),
+            const ext::shared_ptr<OptimizationMethod> &method =
+                ext::shared_ptr<OptimizationMethod>(),
             const DayCounter &dc = Actual365Fixed());
 
         Real a();
@@ -1326,11 +1304,6 @@ class CmsMarketCalibration {
 
 // BlackVariance term structure based on interpolated smile sections
 
-// We need vector of SmileSections as input
-namespace std {
-    %template(SmileSectionVector) vector<boost::shared_ptr<SmileSection> >;
-}
-
 
 %{
 using QuantLib::SmiledSurface;
@@ -1340,17 +1313,17 @@ using QuantLib::SmiledSurface;
 class SmiledSurface : public BlackVolTermStructure {
   public:
         SmiledSurface(
-            const std::vector<boost::shared_ptr<SmileSection>>  smiles,
+            const std::vector<ext::shared_ptr<SmileSection>>  smiles,
             BusinessDayConvention    bdc = Following,
             const DayCounter&        dc = DayCounter());
         SmiledSurface(
-            const std::vector<boost::shared_ptr<SmileSection>>  smiles,
+            const std::vector<ext::shared_ptr<SmileSection>>  smiles,
 			const Date&              referenceDate,
             const Calendar&          cal,
             BusinessDayConvention    bdc = Following,
             const DayCounter&        dc = DayCounter());
         SmiledSurface(
-            const std::vector<boost::shared_ptr<SmileSection>>  smiles,
+            const std::vector<ext::shared_ptr<SmileSection>>  smiles,
 			Natural                  settlementDays,
             const Calendar&          cal,
             BusinessDayConvention    bdc = Following,
@@ -1360,8 +1333,8 @@ class SmiledSurface : public BlackVolTermStructure {
 
 // We add a wrapper function here because we don't want to change the order of classes in this file
 %inline %{
-    boost::shared_ptr<SmileSection> SmileSectionFromSwaptionVTS(
-            const boost::shared_ptr<SwaptionVolatilityStructure>   volTS,
+    ext::shared_ptr<SmileSection> SmileSectionFromSwaptionVTS(
+            const ext::shared_ptr<SwaptionVolatilityStructure>     volTS,
             const Time                                             optionTime,
             const Time                                             swapLength) {
         return volTS->smileSection(optionTime, swapLength);

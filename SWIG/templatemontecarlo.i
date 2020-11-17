@@ -46,7 +46,7 @@ using QuantLib::RealMCScript;
 class RealMCSimulation {
 	public:
 		RealMCSimulation(
-		    const boost::shared_ptr<RealStochasticProcess>  process,
+		    const ext::shared_ptr<RealStochasticProcess>    process,
 			const std::vector<Real>&                        simTimes,
 			const std::vector<Real>&                        obsTimes,
 			Size                                            nPaths,
@@ -59,7 +59,7 @@ class RealMCSimulation {
         
 		// inspectors
 
-		const boost::shared_ptr<RealStochasticProcess> process();
+		const ext::shared_ptr<RealStochasticProcess> process();
 		const std::vector<Real>&                  simTimes();
 		const std::vector<Real>&                  obsTimes();
 		const Size                                nPaths();
@@ -98,13 +98,13 @@ public:
     std::set<Time> observationTimes();
 	
 	// return a clone but with changed observation time; this effectively allows considering a payoff as an index
-	virtual boost::shared_ptr<RealMCPayoff> at(const Time t);
+	virtual ext::shared_ptr<RealMCPayoff> at(const Time t);
             
 };
 
 // we also want to use vectors of payoffs 
 namespace std {
-    %template(RealMCPayoffVector) vector<boost::shared_ptr<RealMCPayoff> >;
+    %template(RealMCPayoffVector) vector<ext::shared_ptr<RealMCPayoff> >;
 }
 
 
@@ -112,22 +112,22 @@ namespace std {
 %shared_ptr(RealMCPayoffPricer);
 class RealMCPayoffPricer {
 	public:
-		RealMCPayoffPricer(const std::vector< boost::shared_ptr<RealMCPayoff> >&   payoffs,
-				           const boost::shared_ptr<RealMCSimulation>&              simulation);
+		RealMCPayoffPricer(const std::vector< ext::shared_ptr<RealMCPayoff> >&   payoffs,
+				           const ext::shared_ptr<RealMCSimulation>&              simulation);
 
 		Real NPV();
 		
-        static std::vector<Real> at(const boost::shared_ptr<RealMCPayoff>&      payoff,
-			                        const boost::shared_ptr<RealMCSimulation>&  simulation);						
+        static std::vector<Real> at(const ext::shared_ptr<RealMCPayoff>&      payoff,
+			                        const ext::shared_ptr<RealMCSimulation>&  simulation);						
         
-		static std::vector<Real> discountedAt(const boost::shared_ptr<RealMCPayoff>&      payoff,
-				                              const boost::shared_ptr<RealMCSimulation>&  simulation);
+		static std::vector<Real> discountedAt(const ext::shared_ptr<RealMCPayoff>&      payoff,
+				                              const ext::shared_ptr<RealMCSimulation>&  simulation);
                                               
-		static Real NPV(const std::vector< boost::shared_ptr<RealMCPayoff> >&  payoffs,
-				        const boost::shared_ptr<RealMCSimulation>&             simulation);					
+		static Real NPV(const std::vector< ext::shared_ptr<RealMCPayoff> >&  payoffs,
+				        const ext::shared_ptr<RealMCSimulation>&             simulation);					
                         
-		static std::vector<Real> NPVs(const std::vector< boost::shared_ptr<RealMCPayoff> >&  payoffs,
-				                      const boost::shared_ptr<RealMCSimulation>&             simulation);
+		static std::vector<Real> NPVs(const std::vector< ext::shared_ptr<RealMCPayoff> >&  payoffs,
+				                      const ext::shared_ptr<RealMCSimulation>&             simulation);
 									  
 };        
 
@@ -137,7 +137,7 @@ class RealMCPayoffPricer {
 %shared_ptr(RealMCClone);
 class RealMCClone : public RealMCPayoff {
 	public:
-	    RealMCClone(const boost::shared_ptr<RealMCPayoff>&   x,
+	    RealMCClone(const ext::shared_ptr<RealMCPayoff>&     x,
 		            const Time                               observationTime);
 };
 
@@ -152,7 +152,7 @@ class RealMCFixedAmount : public RealMCPayoff {
 %shared_ptr(RealMCPay);
 class RealMCPay : public RealMCPayoff {
 	public:
-    	RealMCPay(const boost::shared_ptr<RealMCPayoff>&  x,
+    	RealMCPay(const ext::shared_ptr<RealMCPayoff>&    x,
 			      const Time                              payTime);
 };
 
@@ -195,7 +195,7 @@ class RealMCVanillaOption : public RealMCPayoff {
 %shared_ptr(RealMCCache);
 class RealMCCache : public RealMCPayoff {
 	public:
-		RealMCCache(const boost::shared_ptr<RealMCPayoff>& x);
+		RealMCCache(const ext::shared_ptr<RealMCPayoff>& x);
 };
 
 // arithmetics and functions applied to payoffs
@@ -205,69 +205,69 @@ class RealMCCache : public RealMCPayoff {
 class RealMCAxpy : public RealMCPayoff {
 	public:
         RealMCAxpy(const Real                             a,
-		           const boost::shared_ptr<RealMCPayoff>& x,
-		           const boost::shared_ptr<RealMCPayoff>& y);
+		           const ext::shared_ptr<RealMCPayoff>&   x,
+		           const ext::shared_ptr<RealMCPayoff>&   y);
 };
 
 // x * y  (undiscounted)		
 %shared_ptr(RealMCMult);
 class RealMCMult : public RealMCPayoff {
 	public:
-        RealMCMult(const boost::shared_ptr<RealMCPayoff>& x,
-		           const boost::shared_ptr<RealMCPayoff>& y);
+        RealMCMult(const ext::shared_ptr<RealMCPayoff>& x,
+		           const ext::shared_ptr<RealMCPayoff>& y);
 };
 
 // x / y  (undiscounted)		
 %shared_ptr(RealMCDivision);
 class RealMCDivision : public RealMCPayoff {
 	public:
-        RealMCDivision(const boost::shared_ptr<RealMCPayoff>& x,
-		               const boost::shared_ptr<RealMCPayoff>& y);
+        RealMCDivision(const ext::shared_ptr<RealMCPayoff>& x,
+		               const ext::shared_ptr<RealMCPayoff>& y);
 };
 
 // max{x,y}  (undiscounted)
 %shared_ptr(RealMCMax);
 class RealMCMax : public RealMCPayoff {
 	public:
-        RealMCMax(const boost::shared_ptr<RealMCPayoff>& x,
-	              const boost::shared_ptr<RealMCPayoff>& y);
+        RealMCMax(const ext::shared_ptr<RealMCPayoff>& x,
+	              const ext::shared_ptr<RealMCPayoff>& y);
 };
 
 // min{x,y}  (undiscounted)
 %shared_ptr(RealMCMin);
 class RealMCMin : public RealMCPayoff {
 	public:
-        RealMCMin(const boost::shared_ptr<RealMCPayoff>& x,
-	              const boost::shared_ptr<RealMCPayoff>& y);
+        RealMCMin(const ext::shared_ptr<RealMCPayoff>& x,
+	              const ext::shared_ptr<RealMCPayoff>& y);
 };
 
 // exp{x}  (undiscounted)
 %shared_ptr(RealMCExponential);
 class RealMCExponential : public RealMCPayoff {
 	public:
-        RealMCExponential(const boost::shared_ptr<RealMCPayoff>& x);
+        RealMCExponential(const ext::shared_ptr<RealMCPayoff>& x);
 };
 
 // log{x}  (undiscounted)
 %shared_ptr(RealMCLogarithm);
 class RealMCLogarithm : public RealMCPayoff {
 	public:
-        RealMCLogarithm(const boost::shared_ptr<RealMCPayoff>& x);
+        RealMCLogarithm(const ext::shared_ptr<RealMCPayoff>& x);
 };
 
 // sqrt{x}  (undiscounted)
 %shared_ptr(RealMCSquareroot);
 class RealMCSquareroot : public RealMCPayoff {
 	public:
-        RealMCSquareroot(const boost::shared_ptr<RealMCPayoff>& x);
+        RealMCSquareroot(const ext::shared_ptr<RealMCPayoff>& x);
 };
 
 // logical operators
 %shared_ptr(RealMCLogical);
 class RealMCLogical : public RealMCPayoff {
 	public:
-        RealMCLogical(const boost::shared_ptr<RealMCPayoff>& x,
-	                  const boost::shared_ptr<RealMCPayoff>& y,
+        RealMCLogical(const ext::shared_ptr<RealMCPayoff>&   x,
+	                  const ext::shared_ptr<RealMCPayoff>&   y,
                       const std::string&                     op);
 };
 
@@ -276,9 +276,9 @@ class RealMCLogical : public RealMCPayoff {
 class RealMCIfThenElse : public RealMCPayoff {
 	public:
         RealMCIfThenElse(
-		              const boost::shared_ptr<RealMCPayoff>& x,
-		              const boost::shared_ptr<RealMCPayoff>& y,
-                      const boost::shared_ptr<RealMCPayoff>& z);
+		              const ext::shared_ptr<RealMCPayoff>& x,
+		              const ext::shared_ptr<RealMCPayoff>& y,
+                      const ext::shared_ptr<RealMCPayoff>& z);
 };
 
 // basket of underlyings
@@ -286,7 +286,7 @@ class RealMCIfThenElse : public RealMCPayoff {
 class RealMCBasket : public RealMCPayoff {
 	public:
         RealMCBasket(
-            const std::vector<boost::shared_ptr<RealMCPayoff> >& underlyings,
+            const std::vector<ext::shared_ptr<RealMCPayoff> >&   underlyings,
 		    const std::vector<Real>                              weights,
 			bool                                                 rainbow);
 };
@@ -335,7 +335,7 @@ class RealMCSwaption : public RealMCPayoff {
 			
         RealMCSwaption(
             Time                               obsTime,    // observation equals fixing time
-			const boost::shared_ptr<SwapIndex>&  index,
+			const ext::shared_ptr<SwapIndex>&  index,
 			const Handle<YieldTermStructure>&  discYTSH,
 			Real                               strikeRate,
 			Real                               payOrRec );
@@ -354,7 +354,7 @@ class RealMCSwapRate : public RealMCPayoff {
 			
         RealMCSwapRate(
             Time                                obsTime,    // observation equals fixing time
-			const boost::shared_ptr<SwapIndex>& index,
+			const ext::shared_ptr<SwapIndex>& index,
 			const Handle<YieldTermStructure>&   discYTSH );
 };
 
@@ -364,7 +364,7 @@ class RealMCLiborRate : public RealMCPayoff {
 	public:
         RealMCLiborRate(
             Time                                obsTime,    // observation equals fixing time
-			const boost::shared_ptr<IborIndex>& index,
+			const ext::shared_ptr<IborIndex>&   index,
 			const Handle<YieldTermStructure>&   discYTSH );
 };
 
@@ -374,7 +374,7 @@ class RealMCLiborRateCcy : public RealMCPayoff {
 	public:
         RealMCLiborRateCcy(
             Time                                obsTime,    // observation equals fixing time
-			const boost::shared_ptr<IborIndex>& index,
+			const ext::shared_ptr<IborIndex>&   index,
 			const Handle<YieldTermStructure>&   discYTSH,
             const std::string                   alias );
 };
@@ -396,12 +396,12 @@ class RealMCAnnuity : public RealMCPayoff {
 class RealAMCMinMax : public RealMCPayoff {
 	public:
         RealAMCMinMax(
-            const std::vector<boost::shared_ptr<RealMCPayoff>>& x,
-            const std::vector<boost::shared_ptr<RealMCPayoff>>& y,
-            const std::vector<boost::shared_ptr<RealMCPayoff>>& z,
+            const std::vector<ext::shared_ptr<RealMCPayoff>>&   x,
+            const std::vector<ext::shared_ptr<RealMCPayoff>>&   y,
+            const std::vector<ext::shared_ptr<RealMCPayoff>>&   z,
             const Time                                          observationTime,
 			const Real                                          minMax,             // min = -1, max = +1
-            const boost::shared_ptr<RealMCSimulation>           simulation,
+            const ext::shared_ptr<RealMCSimulation>             simulation,
             const Size                                          maxPolynDegree);
 };
 
@@ -410,12 +410,12 @@ class RealAMCMinMax : public RealMCPayoff {
 class RealAMCOne : public RealMCPayoff {	
 	public:
         RealAMCOne(
-            const std::vector<boost::shared_ptr<RealMCPayoff>>& x,
-            const std::vector<boost::shared_ptr<RealMCPayoff>>& y,
-            const std::vector<boost::shared_ptr<RealMCPayoff>>& z,
+            const std::vector<ext::shared_ptr<RealMCPayoff>>&   x,
+            const std::vector<ext::shared_ptr<RealMCPayoff>>&   y,
+            const std::vector<ext::shared_ptr<RealMCPayoff>>&   z,
             const Time                                          observationTime,
 			const Real                                          largerLess,             // 1: (x>y), -1: (x<y)
-            const boost::shared_ptr<RealMCSimulation>           simulation,
+            const ext::shared_ptr<RealMCSimulation>             simulation,
             const Size                                          maxPolynDegree);
 };
 
@@ -424,10 +424,10 @@ class RealAMCOne : public RealMCPayoff {
 class RealAMCSum : public RealMCPayoff {	
 	public:
         RealAMCSum(
-            const std::vector<boost::shared_ptr<RealMCPayoff>>& x,
-            const std::vector<boost::shared_ptr<RealMCPayoff>>& z,
+            const std::vector<ext::shared_ptr<RealMCPayoff>>&   x,
+            const std::vector<ext::shared_ptr<RealMCPayoff>>&   z,
             const Time                                          observationTime,
-            const boost::shared_ptr<RealMCSimulation>           simulation,
+            const ext::shared_ptr<RealMCSimulation>             simulation,
             const Size                                          maxPolynDegree);
 };
 
@@ -448,31 +448,31 @@ typedef RealAMCPricer::Sum            RealAMCSum;
 class RealMCScript : public RealMCPayoff {
 public:
 	RealMCScript(const std::vector<std::string>&                     keys,
-			     const std::vector<boost::shared_ptr<RealMCPayoff> >&  payoffs,
+			     const std::vector<ext::shared_ptr<RealMCPayoff> >&  payoffs,
 			     const std::vector<std::string>&                     script,
 			     const bool                                          overwrite=true);
 
 	// inspectors
-	const std::map<std::string, boost::shared_ptr<RealMCPayoff> >& payoffs();
+	const std::map<std::string, ext::shared_ptr<RealMCPayoff> >& payoffs();
 	const std::vector<std::string>& expressions();
 	const std::vector<std::string>& scriptLog();
 
     std::vector<std::string> payoffsKeys();
-	std::vector <boost::shared_ptr<RealMCPayoff>> payoffValues();
+	std::vector <ext::shared_ptr<RealMCPayoff>> payoffValues();
 
     std::vector<Real> observationTimes(const std::vector<std::string>& keys);
 	
 	// MC valuation
-	std::vector<Real> NPV(const boost::shared_ptr<RealMCSimulation>&  simulation,
+	std::vector<Real> NPV(const ext::shared_ptr<RealMCSimulation>&    simulation,
 			              const std::vector<std::string>&             keys);
 						  
     static bool add_FixingTimes_to_Asset(
-			boost::shared_ptr<RealMCPayoff>    payoff,
+			ext::shared_ptr<RealMCPayoff>      payoff,
 			const std::vector<Real>&           fixingTimes,
 			const std::vector<Real>&           fixingValues);
 						  
     static bool add_FixingDates_to_Asset(
-			boost::shared_ptr<RealMCPayoff>    payoff,
+			ext::shared_ptr<RealMCPayoff>      payoff,
 			const std::vector<Date>&           fixingDates,
 			const std::vector<Real>&           fixingValues);
 						  

@@ -59,7 +59,7 @@ public:
 };
 
 namespace std {
-    %template(AssetModelVector) vector<boost::shared_ptr<AssetModel> >;
+    %template(AssetModelVector) vector<ext::shared_ptr<AssetModel> >;
 }
 
 %shared_ptr(LocalvolAssetModel);
@@ -72,7 +72,7 @@ public:
 };
 
 namespace std {
-    %template(LocalvolAssetModelVector) vector<boost::shared_ptr<LocalvolAssetModel> >;
+    %template(LocalvolAssetModelVector) vector<ext::shared_ptr<LocalvolAssetModel> >;
 }
 
 
@@ -81,10 +81,10 @@ class HybridModel : public RealStochasticProcess {
 public:
 	HybridModel(
         const std::string                                                domAlias,
-        const boost::shared_ptr<RealStochasticProcess>                   domRatesModel,
+        const ext::shared_ptr<RealStochasticProcess>                     domRatesModel,
         const std::vector<std::string>&                                  forAliases,
-        const std::vector< boost::shared_ptr< AssetModel > >&            forAssetModels,
-        const std::vector< boost::shared_ptr< RealStochasticProcess > >& forRatesModels,
+        const std::vector< ext::shared_ptr< AssetModel > >&              forAssetModels,
+        const std::vector< ext::shared_ptr< RealStochasticProcess > >&   forRatesModels,
         const std::vector< std::vector<Real> >&                          correlations,
         const std::vector<Real>&                                         hybAdjTimes = std::vector<Real>(),
 		const std::vector< std::vector<Real> >&	                         hybVolAdj   = std::vector< std::vector<Real> >()
@@ -92,10 +92,10 @@ public:
 
 	// inspectors
 	const std::string domAlias();
-	const boost::shared_ptr<QuasiGaussianModel>& domRatesModel();
+	const ext::shared_ptr<QuasiGaussianModel>& domRatesModel();
 	const std::vector<std::string>&  forAliases();
-	const std::vector< boost::shared_ptr<AssetModel> >& forAssetModels();
-	const std::vector< boost::shared_ptr<QuasiGaussianModel> >& forRatesModels();
+	const std::vector< ext::shared_ptr<AssetModel> >& forAssetModels();
+	const std::vector< ext::shared_ptr<QuasiGaussianModel> >& forRatesModels();
 	const std::vector< std::vector<Real> >& correlations();
 	const std::vector< std::vector<Real> >& L();
 	const std::vector<size_t>& modelsStartIdx();
@@ -118,13 +118,13 @@ public:
 class SpreadModel : public RealStochasticProcess {
 public:
 	SpreadModel(
-        const boost::shared_ptr<RealStochasticProcess>     baseModel,
-        const boost::shared_ptr<RealStochasticProcess>     sprdModel,
+        const ext::shared_ptr<RealStochasticProcess>       baseModel,
+        const ext::shared_ptr<RealStochasticProcess>       sprdModel,
         const std::vector< std::vector<Real> >&            correlations );	
 
 	// inspectors
-	const boost::shared_ptr<RealStochasticProcess>& baseModel();
-	const boost::shared_ptr<RealStochasticProcess>& sprdModel();
+	const ext::shared_ptr<RealStochasticProcess>& baseModel();
+	const ext::shared_ptr<RealStochasticProcess>& sprdModel();
 
 	virtual Size size();
 	virtual Size factors();

@@ -40,7 +40,7 @@ class HestonSLVProcess : public StochasticProcess {
 
 // We need vector of processes as input
 namespace std {
-    %template(HestonSLVProcessVector) vector<boost::shared_ptr<HestonSLVProcess> >;
+    %template(HestonSLVProcessVector) vector<ext::shared_ptr<HestonSLVProcess> >;
 }
 
 

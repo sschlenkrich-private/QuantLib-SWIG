@@ -109,7 +109,7 @@ class GeneralizedBlackScholesProcess : public StochasticProcess1D {
 
 // We need vector of processes as input
 namespace std {
-    %template(GeneralizedBlackScholesProcessVector) vector<boost::shared_ptr<GeneralizedBlackScholesProcess> >;
+    %template(GeneralizedBlackScholesProcessVector) vector<ext::shared_ptr<GeneralizedBlackScholesProcess> >;
 }
 
 
