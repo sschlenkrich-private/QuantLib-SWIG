@@ -85,21 +85,21 @@ class CapFloor : public Instrument {
 %shared_ptr(Cap)
 class Cap : public CapFloor {
   public:
-    Cap(const std::vector<boost::shared_ptr<CashFlow> >& leg,
+    Cap(const std::vector<ext::shared_ptr<CashFlow> >& leg,
            const std::vector<Rate>& capRates);
 };
 
 %shared_ptr(Floor)
 class Floor : public CapFloor {
   public:
-    Floor(const std::vector<boost::shared_ptr<CashFlow> >& leg,
+    Floor(const std::vector<ext::shared_ptr<CashFlow> >& leg,
              const std::vector<Rate>& floorRates);
 };
 
 %shared_ptr(Collar)
 class Collar : public CapFloor {
   public:
-    Collar(const std::vector<boost::shared_ptr<CashFlow> >& leg,
+    Collar(const std::vector<ext::shared_ptr<CashFlow> >& leg,
               const std::vector<Rate>& capRates,
               const std::vector<Rate>& floorRates);
 };
@@ -112,9 +112,12 @@ using QuantLib::BlackCapFloorEngine;
 class BlackCapFloorEngine : public PricingEngine {
   public:
     BlackCapFloorEngine(const Handle<YieldTermStructure>& termStructure,
-                        const Handle<Quote>& vol);
+                        const Handle<Quote>& vol,
+                        const DayCounter& dc = Actual365Fixed(),
+                        Real displacement = 0.0);
     BlackCapFloorEngine(const Handle<YieldTermStructure>& termStructure,
-                        const Handle<OptionletVolatilityStructure>& vol);
+                        const Handle<OptionletVolatilityStructure>& vol,
+                        Real displacement = Null<Real>());
 };
 
 %{

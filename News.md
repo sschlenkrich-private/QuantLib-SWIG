@@ -1,50 +1,40 @@
 
-Main changes for QuantLib-SWIG 1.18
+Main changes for QuantLib-SWIG 1.20
 ===================================
 
 More details on the changes are available in ChangeLog.txt and at
-<https://github.com/lballabio/QuantLib-SWIG/milestone/11?closed=1>.
+<https://github.com/lballabio/QuantLib-SWIG/milestone/13?closed=1>.
 
-- As announced in the past release, the Ruby wrappers were removed.
-  They have been broken for a while, and nobody expressed any interest
-  in fixing them.
+- We're sunsetting support for Python 2.7, which reached end of life
+  in January 2020.  For the next release, we'll still check that the
+  wrappers work with 2.7.  After the next release, we'll make no
+  further effort to keep it working.
 
-- Exported most of the inner machinery (meshers, operators, boundary
-  conditions, schemes, solvers...) of the finite-difference framework
-  (thanks to Klaus Spanderen).
+- SWIG wrappers now work also if the C++ library was compiled using
+  `std::shared_ptr` instead of `boost::shared_ptr` (thanks to Joseph
+  Wang).
 
-- Exported GJR-GARCH process, model, analytic engine and MC engine
-  (thanks to Pedro Coelho).
+- The `BaroneAdesiWhaleyApproximationEngine` and
+  `BjerksundStenslandApproximationEngine` classes used to be renamed
+  to `BaroneAdesiWhaleyEngine` and `BjerksundStenslandEngine`,
+  respectively.  This is no longer the case.
 
-- The accuracy of piecewise curve can now be passed as an argument
-  to the `IterativeBootstrap` class, which in turn can be passed to
-  the curve.  The new class also allows to set minimum and maximum
-  values explicitly.
+- Exported mixing factor to Heston SLV process and engines (thanks to
+  Jack Gillett).
 
-- Exported the new `GlobalBootstrap` class and the corresponding
-  `GlobalLinearSimpleZeroCurve` curve.
+- Exported a number of inflation-related classes (thanks to Matthias
+  Lungwitz).
 
-- Exported the `CmsMarket` class (thanks to Matthias Lungwitz).
+- Exported Crank-Nicolson finite-differences scheme (thanks to Klaus
+  Spanderen).
 
-- Exported convex monotone and Kruger cubic and log-cubic
-  interpolation (thanks to Miguel Villasmil).
+- Exported `SwaptionVolatilityCube` class (thanks to Marcin Rybacki).
 
-- Exported `InflationCoupon` and `CPICoupon` classes with
-  corresponding functions `as_inflation_coupon` and `as_cpi_coupon`.
+- Exported Cox-Ingersoll-Ross short-rate model.
 
-- Exported missing methods of the `SwaptionVolatilityStructure` class
-  (thanks to Matthias Lungwitz).
+- Exported callable zero-coupon bond.
 
-- Exported the `CallableFixedRateBond` class and a few missing methods
-  of the `CallableBond` class.
+- Exported SABR interpolation.
 
-- Exported the `enforcesTodaysHistoricFixings` flag from the
-  `Settings` class (thanks to Tomáš Křehlík).
-
-- Exported the `OvernightIndexFutureRateHelper` class (thanks to
-  Miguel Villasmil).
-
-- Exported the `SofrFutureRateHelper` class.
-
-- Allowed use of normal volatility with the `CapHelper` class.
+- Made the `Date` class comparable and convertible to string in C#.
 

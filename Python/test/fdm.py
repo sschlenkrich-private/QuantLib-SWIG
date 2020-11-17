@@ -27,7 +27,7 @@ class FdmTest(unittest.TestCase):
         ql.Settings.instance().evaluationDate = self.todaysDate
 
     def tearDown(self):
-        ql.Settings.instance().setEvaluationDate(ql.Date())
+        ql.Settings.instance().evaluationDate = ql.Date()
 
 
     def test1dMesher(self):
@@ -636,6 +636,12 @@ class FdmTest(unittest.TestCase):
         m3 = ql.Glued1dMesher(m1, m2)
 
         self.assertEqual(m3.locations(), (0,1,2,3,4))
+
+    def testFdmZeroInnerValue(self):
+        """Testing FdmZeroInnerValue"""
+        opIter = ql.FdmLinearOpIterator([1], [0], 0)
+
+        self.assertEqual(ql.FdmZeroInnerValue().innerValue(opIter, 1.0), 0.0)
 
 
 if __name__ == "__main__":
