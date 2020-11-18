@@ -49,12 +49,12 @@ using QuantLib::SpreadModel;
 %shared_ptr(AssetModel);
 class AssetModel : public RealStochasticProcess {
 public:
-	AssetModel(const Real X0,
-	           const Real sigma);
+    AssetModel(const Real X0,
+               const Real sigma);
 
-	virtual Size size();
-	virtual Size factors();
-	virtual std::vector<Real> initialValues();					  
+    virtual Size size();
+    virtual Size factors();
+    virtual std::vector<Real> initialValues();                    
 
 };
 
@@ -65,9 +65,9 @@ namespace std {
 %shared_ptr(LocalvolAssetModel);
 class LocalvolAssetModel : public AssetModel {
 public:
-	LocalvolAssetModel(
-	    const Real                          X0,
-	    const Handle<LocalVolTermStructure> localvol);
+    LocalvolAssetModel(
+        const Real                          X0,
+        const Handle<LocalVolTermStructure> localvol);
                
 };
 
@@ -79,7 +79,7 @@ namespace std {
 %shared_ptr(HybridModel);
 class HybridModel : public RealStochasticProcess {
 public:
-	HybridModel(
+    HybridModel(
         const std::string                                                domAlias,
         const ext::shared_ptr<RealStochasticProcess>                     domRatesModel,
         const std::vector<std::string>&                                  forAliases,
@@ -87,48 +87,48 @@ public:
         const std::vector< ext::shared_ptr< RealStochasticProcess > >&   forRatesModels,
         const std::vector< std::vector<Real> >&                          correlations,
         const std::vector<Real>&                                         hybAdjTimes = std::vector<Real>(),
-		const std::vector< std::vector<Real> >&	                         hybVolAdj   = std::vector< std::vector<Real> >()
-		);	
+        const std::vector< std::vector<Real> >&                          hybVolAdj   = std::vector< std::vector<Real> >()
+        );  
 
-	// inspectors
-	const std::string domAlias();
-	const ext::shared_ptr<QuasiGaussianModel>& domRatesModel();
-	const std::vector<std::string>&  forAliases();
-	const std::vector< ext::shared_ptr<AssetModel> >& forAssetModels();
-	const std::vector< ext::shared_ptr<QuasiGaussianModel> >& forRatesModels();
-	const std::vector< std::vector<Real> >& correlations();
-	const std::vector< std::vector<Real> >& L();
-	const std::vector<size_t>& modelsStartIdx();
+    // inspectors
+    const std::string domAlias();
+    const ext::shared_ptr<QuasiGaussianModel>& domRatesModel();
+    const std::vector<std::string>&  forAliases();
+    const std::vector< ext::shared_ptr<AssetModel> >& forAssetModels();
+    const std::vector< ext::shared_ptr<QuasiGaussianModel> >& forRatesModels();
+    const std::vector< std::vector<Real> >& correlations();
+    const std::vector< std::vector<Real> >& L();
+    const std::vector<size_t>& modelsStartIdx();
 
-	const std::vector<Real>&                hybAdjTimes();
-	const std::vector< std::vector<Real> >& localVol();	 
-	const std::vector< std::vector<Real> >& hybrdVol();	 
-	const std::vector< std::vector<Real> >& hybVolAdj();	 
+    const std::vector<Real>&                hybAdjTimes();
+    const std::vector< std::vector<Real> >& localVol();  
+    const std::vector< std::vector<Real> >& hybrdVol();  
+    const std::vector< std::vector<Real> >& hybVolAdj();     
 
     Real hybridVolAdjuster(size_t forIdx, Real t);
     void recalculateHybridVolAdjuster(const std::vector<Real>& hybAdjTimes = std::vector<Real>());
 
-	virtual Size size();
-	virtual Size factors();
-	virtual std::vector<Real> initialValues();					  
+    virtual Size size();
+    virtual Size factors();
+    virtual std::vector<Real> initialValues();                    
 
 };
 
 %shared_ptr(SpreadModel);
 class SpreadModel : public RealStochasticProcess {
 public:
-	SpreadModel(
+    SpreadModel(
         const ext::shared_ptr<RealStochasticProcess>       baseModel,
         const ext::shared_ptr<RealStochasticProcess>       sprdModel,
-        const std::vector< std::vector<Real> >&            correlations );	
+        const std::vector< std::vector<Real> >&            correlations );  
 
-	// inspectors
-	const ext::shared_ptr<RealStochasticProcess>& baseModel();
-	const ext::shared_ptr<RealStochasticProcess>& sprdModel();
+    // inspectors
+    const ext::shared_ptr<RealStochasticProcess>& baseModel();
+    const ext::shared_ptr<RealStochasticProcess>& sprdModel();
 
-	virtual Size size();
-	virtual Size factors();
-	virtual std::vector<Real> initialValues();					  
+    virtual Size size();
+    virtual Size factors();
+    virtual std::vector<Real> initialValues();                    
 
 };
 

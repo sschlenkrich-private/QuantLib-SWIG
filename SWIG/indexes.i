@@ -289,7 +289,7 @@ class SwapIndex : public InterestRateIndex {
     ext::shared_ptr<SwapIndex> clone(const Handle<YieldTermStructure>& forwarding,
                                        const Handle<YieldTermStructure>& discounting) const;
     ext::shared_ptr<SwapIndex> clone(const Period& tenor) const;
-	ext::shared_ptr<VanillaSwap> underlyingSwap(const Date& fixingDate);
+    ext::shared_ptr<VanillaSwap> underlyingSwap(const Date& fixingDate);
 };
 
 #if defined(SWIGCSHARP)

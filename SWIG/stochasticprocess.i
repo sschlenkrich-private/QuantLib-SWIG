@@ -240,9 +240,9 @@ class HestonProcess : public StochasticProcess {
                     BroadieKayaExactSchemeTrapezoidal };
 
         HestonProcess(const Handle<YieldTermStructure>& riskFreeTS,
-					   const Handle<YieldTermStructure>& dividendTS,
-					   const Handle<Quote>& s0,
-					   Real v0, Real kappa,
+                       const Handle<YieldTermStructure>& dividendTS,
+                       const Handle<Quote>& s0,
+                       Real v0, Real kappa,
                        Real theta, Real sigma, Real rho,
                        Discretization d = QuadraticExponentialMartingale);
 
@@ -346,8 +346,8 @@ using QuantLib::OrnsteinUhlenbeckProcess;
 class OrnsteinUhlenbeckProcess : public StochasticProcess1D {
   public:
     OrnsteinUhlenbeckProcess(
-    	Real speed, Volatility vol, Real x0 = 0.0, Real level = 0.0);
-    	    	
+        Real speed, Volatility vol, Real x0 = 0.0, Real level = 0.0);
+                
     Real speed() const;
     Real volatility() const;
     Real level() const;
@@ -379,8 +379,8 @@ class ExtendedOrnsteinUhlenbeckProcess : public StochasticProcess1D {
             
             const UnaryFunction f(function);
             return new ExtendedOrnsteinUhlenbeckProcess(
-            	    speed, sigma, x0, f, 
-            	    ExtendedOrnsteinUhlenbeckProcess::MidPoint, intEps);
+                    speed, sigma, x0, f, 
+                    ExtendedOrnsteinUhlenbeckProcess::MidPoint, intEps);
         }
         #elif defined(SWIGJAVA) || defined(SWIGCSHARP)
         ExtendedOrnsteinUhlenbeckProcess(
@@ -390,10 +390,10 @@ class ExtendedOrnsteinUhlenbeckProcess : public StochasticProcess1D {
             
             const UnaryFunction f(function);
             return new ExtendedOrnsteinUhlenbeckProcess(
-            	    speed, sigma, x0, f, 
-            	    ExtendedOrnsteinUhlenbeckProcess::MidPoint, intEps);
+                    speed, sigma, x0, f, 
+                    ExtendedOrnsteinUhlenbeckProcess::MidPoint, intEps);
         }
-		#endif
+        #endif
     }
 };
 
@@ -404,9 +404,9 @@ class ExtOUWithJumpsProcess : public StochasticProcess {
             const ext::shared_ptr<ExtendedOrnsteinUhlenbeckProcess>& process,
             Real Y0, Real beta, Real jumpIntensity, Real eta) {
                         
-			return new ExtOUWithJumpsProcess(
-				new ExtOUWithJumpsProcess(
-					process, Y0, beta, jumpIntensity, eta));
+            return new ExtOUWithJumpsProcess(
+                new ExtOUWithJumpsProcess(
+                    process, Y0, beta, jumpIntensity, eta));
         }
 };
 
@@ -417,9 +417,9 @@ class KlugeExtOUProcess : public StochasticProcess {
             Real rho,
             const ext::shared_ptr<ExtOUWithJumpsProcess>& kluge,
             const ext::shared_ptr<ExtendedOrnsteinUhlenbeckProcess>& extOU) {
-	                            	
+                                    
             return new KlugeExtOUProcess(new KlugeExtOUProcess(
-            	rho, kluge, extOU));
+                rho, kluge, extOU));
         }
 };
 

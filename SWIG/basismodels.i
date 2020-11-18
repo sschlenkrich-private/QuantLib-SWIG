@@ -48,23 +48,23 @@ using QuantLib::SwaptionCashFlows;
 
 class SwapCashFlows {
 public:
-	SwapCashFlows ( const ext::shared_ptr<VanillaSwap>& swap,
-		            const Handle<YieldTermStructure>&   discountCurve,
-					bool                                contTenorSpread = true );
-	// inspectors
+    SwapCashFlows ( const ext::shared_ptr<VanillaSwap>& swap,
+                    const Handle<YieldTermStructure>&   discountCurve,
+                    bool                                contTenorSpread = true );
+    // inspectors
     const std::vector<Real>& floatTimes();
     const std::vector<Real>& floatWeights();
-    const std::vector<Real>& fixedTimes();	 
-	const std::vector<Real>& fixedWeights();  
-	const std::vector<Real>& annuityWeights();
+    const std::vector<Real>& fixedTimes();   
+    const std::vector<Real>& fixedWeights();  
+    const std::vector<Real>& annuityWeights();
 };
 
 class SwaptionCashFlows : public SwapCashFlows {
 public:
-   	SwaptionCashFlows ( const ext::shared_ptr<Swaption>&  swaption,
-		                const Handle<YieldTermStructure>& discountCurve,
-					    bool                              contTenorSpread = true );
-	const std::vector<Real>& exerciseTimes();
+    SwaptionCashFlows ( const ext::shared_ptr<Swaption>&  swaption,
+                        const Handle<YieldTermStructure>& discountCurve,
+                        bool                              contTenorSpread = true );
+    const std::vector<Real>& exerciseTimes();
 };
 
 

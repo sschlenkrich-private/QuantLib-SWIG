@@ -470,11 +470,11 @@ class FixedLocalVolSurface : public LocalVolTermStructure {
             return new FixedLocalVolSurface(referenceDate, times, strikes, boost::make_shared<Matrix>(localVolMatrix),dayCounter);
         }
 
-	}
+    }
         
-	// inspectors
+    // inspectors
     const std::vector<Time> times();
-	const Matrix strikeMatrix();
+    const Matrix strikeMatrix();
     const Matrix localVolMatrix();
         
 };
@@ -482,11 +482,11 @@ class FixedLocalVolSurface : public LocalVolTermStructure {
 // down-cast a local vol term structure from SLV model
 %inline %{
     ext::shared_ptr<FixedLocalVolSurface> as_FixedLocalVolSurface(
-	    const ext::shared_ptr<LocalVolTermStructure>&  lVolTS) {
+        const ext::shared_ptr<LocalVolTermStructure>&  lVolTS) {
             ext::shared_ptr<FixedLocalVolSurface> resVolTS = boost::dynamic_pointer_cast<FixedLocalVolSurface>(lVolTS);
             QL_REQUIRE(resVolTS, "FixedLocalVolSurface required");
             return resVolTS;
-	}
+    }
 %}
 
 
@@ -853,8 +853,8 @@ class SabrInterpolatedSmileSection : public SmileSection {
                ext::shared_ptr<OptimizationMethod>(),
                const DayCounter &dc = Actual365Fixed(),
                const Real shift = 0.0,
-			   const bool useNormalVols = false );
-			   
+               const bool useNormalVols = false );
+               
         SabrInterpolatedSmileSection(
                const Date &optionDate, const Rate &forward,
                const std::vector<Rate> &strikes, bool hasFloatingStrikes,
@@ -869,22 +869,22 @@ class SabrInterpolatedSmileSection : public SmileSection {
                ext::shared_ptr<OptimizationMethod>(),
                const DayCounter &dc = Actual365Fixed(),
                const Real shift = 0.0,
-			   const bool useNormalVols = false );
+               const bool useNormalVols = false );
 
         Real alpha();
 
         Real beta();
-		
+        
         Real nu();
-		
+        
         Real rho();
-		
+        
         Real rmsError();
-		
+        
         Real maxError();
-		
+        
         EndCriteria::Type endCriteria();
-		
+        
 };
 
 
@@ -914,23 +914,23 @@ class SviInterpolatedSmileSection : public SmileSection {
             const std::vector<Rate> &strikes, bool hasFloatingStrikes,
             const Handle<Quote> &atmVolatility,
             const std::vector<Handle<Quote> > &volHandles,
-			Real a, Real b, Real sigma, Real rho, Real m,
-			bool aIsFixed, bool bIsFixed, bool sigmaIsFixed,
-			bool rhoIsFixed, bool mIsFixed, bool vegaWeighted = true,
+            Real a, Real b, Real sigma, Real rho, Real m,
+            bool aIsFixed, bool bIsFixed, bool sigmaIsFixed,
+            bool rhoIsFixed, bool mIsFixed, bool vegaWeighted = true,
             const ext::shared_ptr<EndCriteria> &endCriteria =
                 ext::shared_ptr<EndCriteria>(),
             const ext::shared_ptr<OptimizationMethod> &method =
                 ext::shared_ptr<OptimizationMethod>(),
             const DayCounter &dc = Actual365Fixed() );
-					   
+                       
         SviInterpolatedSmileSection(
             const Date &optionDate, const Rate &forward,
             const std::vector<Rate> &strikes, bool hasFloatingStrikes,
             const Volatility &atmVolatility, 
-			const std::vector<Volatility> &vols,
+            const std::vector<Volatility> &vols,
             Real a, Real b, Real sigma, Real rho, Real m, 
-			bool isAFixed, bool isBFixed, bool isSigmaFixed, 
-			bool isRhoFixed, bool isMFixed,  bool vegaWeighted = true,
+            bool isAFixed, bool isBFixed, bool isSigmaFixed, 
+            bool isRhoFixed, bool isMFixed,  bool vegaWeighted = true,
             const ext::shared_ptr<EndCriteria> &endCriteria =
                 ext::shared_ptr<EndCriteria>(),
             const ext::shared_ptr<OptimizationMethod> &method =
@@ -945,7 +945,7 @@ class SviInterpolatedSmileSection : public SmileSection {
         Real rmsError();
         Real maxError();
         EndCriteria::Type endCriteria();
-		
+        
 };
 
 
@@ -1318,13 +1318,13 @@ class SmiledSurface : public BlackVolTermStructure {
             const DayCounter&        dc = DayCounter());
         SmiledSurface(
             const std::vector<ext::shared_ptr<SmileSection>>  smiles,
-			const Date&              referenceDate,
+            const Date&              referenceDate,
             const Calendar&          cal,
             BusinessDayConvention    bdc = Following,
             const DayCounter&        dc = DayCounter());
         SmiledSurface(
             const std::vector<ext::shared_ptr<SmileSection>>  smiles,
-			Natural                  settlementDays,
+            Natural                  settlementDays,
             const Calendar&          cal,
             BusinessDayConvention    bdc = Following,
             const DayCounter&        dc = DayCounter());
