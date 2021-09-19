@@ -96,6 +96,9 @@ public:
 
     // calculate observation times recursively
     std::set<Time> observationTimes();
+
+    // we want the times as vector because swig does not really know what to do with std::set
+    std::vector<Real> observationTimesVector();
     
     // return a clone but with changed observation time; this effectively allows considering a payoff as an index
     virtual ext::shared_ptr<RealMCPayoff> at(const Time t);
