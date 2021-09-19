@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2008 StatPro Italia srl
+ Copyright (C) 2020 Gorazd Brumen
 
  This file is part of QuantLib, a free-software/open-source library
  for financial quantitative analysts and developers - http://quantlib.org/
@@ -15,34 +15,29 @@
  FOR A PARTICULAR PURPOSE.  See the license for more details.
 */
 
-#ifndef quantlib_futures_i
-#define quantlib_futures_i
+#ifndef quantlib_spread_options_i
+#define quantlib_spread_options_i
 
-%include forward.i
-%include indexes.i
 %include options.i
 
 %{
-using QuantLib::Futures;
-using QuantLib::OvernightIndexFuture;
+using QuantLib::SpreadOption;
+using QuantLib::KirkSpreadOptionEngine;
 %}
 
-struct Futures {
-    enum Type { IMM, ASX };
+%shared_ptr(SpreadOption);
+class SpreadOption : public MultiAssetOption {
+public:
+  SpreadOption(const ext::shared_ptr<PlainVanillaPayoff>& payoff,
+               const ext::shared_ptr<Exercise>& exercise);
 };
 
-%shared_ptr(OvernightIndexFuture)
-class OvernightIndexFuture : public Instrument {
-  public:
-    OvernightIndexFuture(
-        ext::shared_ptr<OvernightIndex> overnightIndex,
-        const Date& valueDate,
-        const Date& maturityDate,
-        Handle<Quote> convexityAdjustment = Handle<Quote>(),
-        RateAveraging::Type averagingMethod = RateAveraging::Compound);
-
-    Real convexityAdjustment() const;
+%shared_ptr(KirkSpreadOptionEngine);
+class KirkSpreadOptionEngine : public PricingEngine {
+public:
+  KirkSpreadOptionEngine(const ext::shared_ptr<BlackProcess>& process1,
+                         const ext::shared_ptr<BlackProcess>& process2,
+                         const Handle<Quote>& correlation);
 };
-
 
 #endif

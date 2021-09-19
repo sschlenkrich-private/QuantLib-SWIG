@@ -1,40 +1,38 @@
 
-Main changes for QuantLib-SWIG 1.20
+Main changes for QuantLib-SWIG 1.23
 ===================================
 
 More details on the changes are available in ChangeLog.txt and at
-<https://github.com/lballabio/QuantLib-SWIG/milestone/13?closed=1>.
+<https://github.com/lballabio/QuantLib-SWIG/milestone/16?closed=1>.
 
-- We're sunsetting support for Python 2.7, which reached end of life
-  in January 2020.  For the next release, we'll still check that the
-  wrappers work with 2.7.  After the next release, we'll make no
-  further effort to keep it working.
+- Exported overloaded constructors for piecewise inflation curves.
 
-- SWIG wrappers now work also if the C++ library was compiled using
-  `std::shared_ptr` instead of `boost::shared_ptr` (thanks to Joseph
-  Wang).
+- Exported new `ZeroInflationCashFlow` class.
 
-- The `BaroneAdesiWhaleyApproximationEngine` and
-  `BjerksundStenslandApproximationEngine` classes used to be renamed
-  to `BaroneAdesiWhaleyEngine` and `BjerksundStenslandEngine`,
-  respectively.  This is no longer the case.
+- Exported new constructor for `Currency` class (thanks to Marcin Rybacki).
 
-- Exported mixing factor to Heston SLV process and engines (thanks to
-  Jack Gillett).
+- Exported `ZeroCouponSwap` class (thanks to Marcin Rybacki).
 
-- Exported a number of inflation-related classes (thanks to Matthias
-  Lungwitz).
+- Exported `MCDigitalEngine` class (thanks to Jack Gillett).
 
-- Exported Crank-Nicolson finite-differences scheme (thanks to Klaus
-  Spanderen).
+- Export updated 30/360 enumeration and constructors.
 
-- Exported `SwaptionVolatilityCube` class (thanks to Marcin Rybacki).
+- Export `AnalyticHestonHullWhiteEngine`, `AnalyticH1HWEngine` and
+  `FdHestonHullWhiteVanillaEngine` classes (thanks to Klaus Spanderen).
 
-- Exported Cox-Ingersoll-Ross short-rate model.
+- Added payment lag and payment constructor to a few leg constructors
+  (thanks to Marcin Rybacki).
 
-- Exported callable zero-coupon bond.
+- The `Type` enumeration defined in several swap classes was moved to
+  their base `Swap` class.
 
-- Exported SABR interpolation.
+- Updated ISDA CDS example in Python.  The differences between its
+  results and Markit values are now within the desired tolerance
+  (thanks to Francis Duffy).
 
-- Made the `Date` class comparable and convertible to string in C#.
+- Removed constructors of piecewise yield and default curves taking an
+  accuracy parameter (they were removed from the C++ library).
 
+- Bond helper constructors now take a `BondPrice::Type priceType`
+  argument instead of a `bool useCleanPrice` (the latter was removed
+  from the C++ library).
