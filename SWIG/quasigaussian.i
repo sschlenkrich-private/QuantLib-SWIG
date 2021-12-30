@@ -240,7 +240,7 @@ class QGLocalvolModelPtr : public ext::shared_ptr<QGLocalvolModel> {
             const size_t                                           debugLevel = 1) {
             std::string flavorUpperCase = flavor;
             boost::to_upper(flavorUpperCase);
-            ext::shared_ptr<SwapIndex> swapIdx_sp =  boost::dynamic_pointer_cast<SwapIndex>(swapIndex);
+            ext::shared_ptr<SwapIndex> swapIdx_sp =  ext::dynamic_pointer_cast<SwapIndex>(swapIndex);
             if (flavorUpperCase.compare("SLV") == 0) {            
                 return new QGLocalvolModelPtr(   
                     new QuantLib::QGLSVModel(hYTS,volTS,chi,theta,eta,swapIdx_sp,times,nStrikes,
@@ -287,25 +287,25 @@ class QGLocalvolModelPtr : public ext::shared_ptr<QGLocalvolModel> {
         // methods and inspectors
 
         void simulateAndCalibrate() {
-            boost::dynamic_pointer_cast<QGLocalvolModel>(*self)->simulateAndCalibrate();
+            ext::dynamic_pointer_cast<QGLocalvolModel>(*self)->simulateAndCalibrate();
         }
 
         const ext::shared_ptr<RealMCSimulation> simulation() { 
-            return boost::dynamic_pointer_cast<QGLocalvolModel>(*self)->simulation();
+            return ext::dynamic_pointer_cast<QGLocalvolModel>(*self)->simulation();
         }
 
         const Real sigmaS(const Size idx, const Real s) { 
-            return boost::dynamic_pointer_cast<QGLocalvolModel>(*self)->sigmaS(idx,s);
+            return ext::dynamic_pointer_cast<QGLocalvolModel>(*self)->sigmaS(idx,s);
         }
 
         std::vector<std::string> debugLog() { 
-            return boost::dynamic_pointer_cast<QGLocalvolModel>(*self)->debugLog();
+            return ext::dynamic_pointer_cast<QGLocalvolModel>(*self)->debugLog();
         }
 
         // test the calibration of the model
         std::vector< std::vector<Real> > calibrationTest(const std::vector<Date>&  exerciseDates,
                                                          const std::vector<Real>&  stdDevStrikes ) {
-            return boost::dynamic_pointer_cast<QGLocalvolModel>(*self)->calibrationTest(exerciseDates,stdDevStrikes);
+            return ext::dynamic_pointer_cast<QGLocalvolModel>(*self)->calibrationTest(exerciseDates,stdDevStrikes);
         }
         
     }    

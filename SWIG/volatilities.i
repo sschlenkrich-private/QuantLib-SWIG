@@ -467,7 +467,7 @@ class FixedLocalVolSurface : public LocalVolTermStructure {
                 for (Size i=0; i<strikes[k]->size(); ++i) strikes[k]->at(i) = strikeMatrix[i][k];
             }
             // we hard-code linear interpolation and flat extrapolation with this interface
-            return new FixedLocalVolSurface(referenceDate, times, strikes, boost::make_shared<Matrix>(localVolMatrix),dayCounter);
+            return new FixedLocalVolSurface(referenceDate, times, strikes, ext::make_shared<Matrix>(localVolMatrix),dayCounter);
         }
 
     }
@@ -483,7 +483,7 @@ class FixedLocalVolSurface : public LocalVolTermStructure {
 %inline %{
     ext::shared_ptr<FixedLocalVolSurface> as_FixedLocalVolSurface(
         const ext::shared_ptr<LocalVolTermStructure>&  lVolTS) {
-            ext::shared_ptr<FixedLocalVolSurface> resVolTS = boost::dynamic_pointer_cast<FixedLocalVolSurface>(lVolTS);
+            ext::shared_ptr<FixedLocalVolSurface> resVolTS = ext::dynamic_pointer_cast<FixedLocalVolSurface>(lVolTS);
             QL_REQUIRE(resVolTS, "FixedLocalVolSurface required");
             return resVolTS;
     }
