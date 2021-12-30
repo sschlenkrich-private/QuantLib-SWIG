@@ -651,11 +651,11 @@ class SabrSmileSection : public SmileSection {
                      Rate forward,
                      const std::vector<Real>& sabrParameters,
                      const DayCounter& dc = Actual365Fixed(),
-                     Real shift = 0.0, const bool useNormalVols = false);
+                     Real shift = 0.0, const VolatilityType volatilityType = ShiftedLognormal);
     SabrSmileSection(Time timeToExpiry,
                      Rate forward,
                      const std::vector<Real>& sabrParameters,
-                     Real shift = 0.0, const bool useNormalVols = false);
+                     Real shift = 0.0, VolatilityType volatilityType = ShiftedLognormal);
     Real alpha() const;
     Real beta() const;
     Real nu() const;
