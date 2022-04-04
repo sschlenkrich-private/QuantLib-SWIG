@@ -150,6 +150,18 @@ class FraRateHelper : public RateHelper {
                   Pillar::Choice pillar = Pillar::LastRelevantDate,
                   Date customPillarDate = Date(),
                   bool useIndexedCoupon = true);
+    FraRateHelper(Rate rate,
+                  Period periodToStart,
+                  const ext::shared_ptr<IborIndex>& iborIndex,
+                  Pillar::Choice pillar = Pillar::LastRelevantDate,
+                  Date customPillarDate = Date(),
+                  bool useIndexedCoupon = true);
+    FraRateHelper(const Handle<Quote>& rate,
+                  Period periodToStart,
+                  const ext::shared_ptr<IborIndex>& iborIndex,
+                  Pillar::Choice pillar = Pillar::LastRelevantDate,
+                  Date customPillarDate = Date(),
+                  bool useIndexedCoupon = true);
 };
 
 %shared_ptr(FuturesRateHelper)
@@ -370,22 +382,33 @@ class OvernightIndexFutureRateHelper : public RateHelper {
 %shared_ptr(SofrFutureRateHelper)
 class SofrFutureRateHelper : public OvernightIndexFutureRateHelper {
   public:
-    SofrFutureRateHelper(
-            const Handle<Quote>& price,
-            Month referenceMonth,
-            Year referenceYear,
-            Frequency referenceFreq,
-            const ext::shared_ptr<OvernightIndex>& index,
-            const Handle<Quote>& convexityAdjustment = Handle<Quote>(),
-            RateAveraging::Type averagingMethod = RateAveraging::Compound);
-    SofrFutureRateHelper(
-            Real price,
-            Month referenceMonth,
-            Year referenceYear,
-            Frequency referenceFreq,
-            const ext::shared_ptr<OvernightIndex>& index,
-            Real convexityAdjustment = 0.0,
-            RateAveraging::Type averagingMethod = RateAveraging::Compound);
+    SofrFutureRateHelper(const Handle<Quote>& price,
+                         Month referenceMonth,
+                         Year referenceYear,
+                         Frequency referenceFreq,
+                         const ext::shared_ptr<OvernightIndex>& index,
+                         const Handle<Quote>& convexityAdjustment = Handle<Quote>(),
+                         RateAveraging::Type averagingMethod = RateAveraging::Compound);
+
+    SofrFutureRateHelper(Real price,
+                         Month referenceMonth,
+                         Year referenceYear,
+                         Frequency referenceFreq,
+                         const ext::shared_ptr<OvernightIndex>& index,
+                         Real convexityAdjustment = 0.0,
+                         RateAveraging::Type averagingMethod = RateAveraging::Compound);
+
+    SofrFutureRateHelper(const Handle<Quote>& price,
+                         Month referenceMonth,
+                         Year referenceYear,
+                         Frequency referenceFreq,
+                         const Handle<Quote>& convexityAdjustment = Handle<Quote>());
+
+    SofrFutureRateHelper(Real price,
+                         Month referenceMonth,
+                         Year referenceYear,
+                         Frequency referenceFreq,
+                         Real convexityAdjustment = 0.0);
 };
 
 %shared_ptr(CrossCurrencyBasisSwapRateHelper)
