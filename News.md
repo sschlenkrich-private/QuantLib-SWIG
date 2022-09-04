@@ -1,31 +1,37 @@
 
-Main changes for QuantLib-SWIG 1.25
+Main changes for QuantLib-SWIG 1.27
 ===================================
 
 More details on the changes are available in ChangeLog.txt and at
-<https://github.com/lballabio/QuantLib-SWIG/milestone/18?closed=1>.
+<https://github.com/lballabio/QuantLib-SWIG/milestone/20?closed=1>.
 
-- **Breaking change:** exported updated interface for convertible bonds and their engine.
 
-- **Breaking change (except for Python):** renamed `WulinYongDoubleBarrierEngine`
-  to `SuoWangDoubleBarrierEngine`.
+- Fixed code generation when Java's `AutoCloseable` support is enabled
+  through the `--enable-java-autocloseable` configure switch.
 
-- Added a few missing methods to `Schedule` (thanks to Ralf Konrad).
+- Exported the `SviSmileSection` and `SviInterpolatedSmileSection`
+  classes; thanks to Fredrik Gerdin Börjesson (@gbfredrik).
 
-- Exported `CPICoupon`, `CPICashFlow`, `CPILeg`.
+- Exported the `QuantoTermStructure` class; thanks to Sebastian Bohlen
+  (@BohlSeb).
 
-- Exported new argument to `SabrSmileSection` constructor to allow normal volatilities.
+- Exported the `TurnbullWakemanAsianEngine` class; thanks to Jack
+  Gillett (@jackgillett101).
 
-- Exported new constructor and `amount` method for `ForwardRateAgreement`.
+- Exported shorter name (the same as in C++) for
+  `PiecewiseZeroSpreadedTermStructure`.  The older and uglier
+  `SpreadedLinearZeroInterpolatedTermStructure` is still available.
 
-- Exported new constructors for `SofrFutureRateHelper`.
+- Exported the `previousCashFlowAmount` and `nextCashFlowAmount`
+  methods from the `CashFlows` class; thanks to Marcin Rybacki
+  (@marcin-rybacki).
 
-- Exported new constructors for zero-inflation curves.
+- Exported a few missing methods from the `CreditDefaultSwap` class.
 
-- Exported a few more finite-difference classes (thanks to Klaus Spanderen).
+- Removed the `FDShoutEngine` class, no longer available in the
+  underlying C++ library; thanks to Fredrik Gerdin Börjesson
+  (@gbfredrik).
 
-- Exported new basis-swap rate helpers.
+- Removed reference to the deprecated `Disposable` class from
+  interface files; thanks to Jonathan Sweemer (@sweemer).
 
-- Exported `ESTR` class (thanks to Kirill Egorov).
-
-- Exported `StrippedOptionlet` class.

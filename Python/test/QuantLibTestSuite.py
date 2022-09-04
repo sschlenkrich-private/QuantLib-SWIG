@@ -45,9 +45,10 @@ from americanquantooption import AmericanQuantoOptionTest
 from extrapolation import ExtrapolationTest
 from fdm import FdmTest
 from swaption import SwaptionTest
-from volatilities import SwaptionVolatilityCubeTest
+from volatilities import SviSmileSectionTest, SwaptionVolatilityCubeTest
 from inflation import InflationTest
 from coupons import (
+    CashFlowsTest,
     SubPeriodsCouponTest,
     IborCouponTest,
     OvernightCouponTest,
@@ -91,6 +92,7 @@ def test():
     suite.addTest(unittest.makeSuite(SwaptionVolatilityCubeTest, 'test'))
     suite.addTest(unittest.makeSuite(InflationTest, "test"))
     suite.addTest(unittest.makeSuite(CrossCurrencyBasisSwapRateHelperTest, "test"))
+    suite.addTest(unittest.makeSuite(CashFlowsTest, "test"))
     suite.addTest(unittest.makeSuite(SubPeriodsCouponTest, "test"))
     suite.addTest(unittest.makeSuite(IborCouponTest, "test"))
     suite.addTest(unittest.makeSuite(OvernightCouponTest, "test"))
@@ -98,6 +100,7 @@ def test():
     suite.addTest(unittest.makeSuite(OptionsTest, "test"))
     suite.addTest(unittest.makeSuite(ZeroCouponSwapTest, "test"))
     suite.addTest(unittest.makeSuite(CurrencyTest, "test"))
+    suite.addTest(unittest.makeSuite(SviSmileSectionTest, "test"))
 
     result = unittest.TextTestRunner(verbosity=2).run(suite)
 
