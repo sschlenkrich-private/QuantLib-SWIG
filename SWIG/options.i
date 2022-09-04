@@ -415,6 +415,25 @@ class AnalyticHestonEngine : public PricingEngine {
             return std::pair<Real, Real>(tmp.real(), tmp.imag());
         }
     }
+
+	%apply Real *OUTPUT { Real& value, Size& evaluations };
+	static void doCalculation(Real riskFreeDiscount,
+                       Real dividendDiscount,
+                       Real spotPrice,
+                       Real strikePrice,
+                       Real term,
+                       Real kappa,
+                       Real theta,
+                       Real sigma,
+                       Real v0,
+                       Real rho,
+                       const TypePayoff& type,
+                       const Integration& integration,
+                       ComplexLogFormula cpxLog,
+                       const AnalyticHestonEngine* enginePtr,
+                       Real& value,
+                       Size& evaluations);
+    %clear Real& value, Size& evaluations;
 };
 
 %{
