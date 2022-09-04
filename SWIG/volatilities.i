@@ -975,67 +975,6 @@ class SabrInterpolatedSmileSection : public SmileSection {
 
 
 %{
-using QuantLib::SviSmileSection;
-using QuantLib::SviInterpolatedSmileSection;
-%}
-
-%shared_ptr(SviSmileSection)
-class SviSmileSection : public SmileSection {
-  public:
-        SviSmileSection(const Date& d,
-                         Rate forward,
-                         const std::vector<Real>& sviParameters,     // a, b, sigma, rho, m
-                         const DayCounter& dc = Actual365Fixed());
-        SviSmileSection(Time timeToExpiry,
-                         Rate forward,
-                         const std::vector<Real>& sviParameters);
-};
-
-
-%shared_ptr(SviInterpolatedSmileSection)
-class SviInterpolatedSmileSection : public SmileSection {
-  public:
-        SviInterpolatedSmileSection(
-            const Date &optionDate, const Handle<Quote> &forward,
-            const std::vector<Rate> &strikes, bool hasFloatingStrikes,
-            const Handle<Quote> &atmVolatility,
-            const std::vector<Handle<Quote> > &volHandles,
-            Real a, Real b, Real sigma, Real rho, Real m,
-            bool aIsFixed, bool bIsFixed, bool sigmaIsFixed,
-            bool rhoIsFixed, bool mIsFixed, bool vegaWeighted = true,
-            const ext::shared_ptr<EndCriteria> &endCriteria =
-                ext::shared_ptr<EndCriteria>(),
-            const ext::shared_ptr<OptimizationMethod> &method =
-                ext::shared_ptr<OptimizationMethod>(),
-            const DayCounter &dc = Actual365Fixed() );
-                       
-        SviInterpolatedSmileSection(
-            const Date &optionDate, const Rate &forward,
-            const std::vector<Rate> &strikes, bool hasFloatingStrikes,
-            const Volatility &atmVolatility, 
-            const std::vector<Volatility> &vols,
-            Real a, Real b, Real sigma, Real rho, Real m, 
-            bool isAFixed, bool isBFixed, bool isSigmaFixed, 
-            bool isRhoFixed, bool isMFixed,  bool vegaWeighted = true,
-            const ext::shared_ptr<EndCriteria> &endCriteria =
-                ext::shared_ptr<EndCriteria>(),
-            const ext::shared_ptr<OptimizationMethod> &method =
-                ext::shared_ptr<OptimizationMethod>(),
-            const DayCounter &dc = Actual365Fixed());
-
-        Real a();
-        Real b();
-        Real sigma();
-        Real rho();
-        Real m();
-        Real rmsError();
-        Real maxError();
-        EndCriteria::Type endCriteria();
-        
-};
-
-
-%{
 using QuantLib::KahaleSmileSection;
 %}
 
