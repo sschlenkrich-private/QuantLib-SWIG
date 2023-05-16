@@ -44,20 +44,34 @@
 %}
 
 #if defined(SWIGPYTHON)
-%typemap(in) boost::optional<bool> %{
+%typemap(in) ext::optional<bool> %{
 	if($input == Py_None)
-		$1 = boost::none;
+		$1 = ext::nullopt;
 	else if ($input == Py_True)
 		$1 = true;
 	else
 		$1 = false;
 %}
-%typecheck (QL_TYPECHECK_BOOL) boost::optional<bool> {
+%typecheck (QL_TYPECHECK_BOOL) ext::optional<bool> {
 if (PyBool_Check($input) || Py_None == $input) 
 	$1 = 1;
 else
 	$1 = 0;
 }
+#else
+#if defined(SWIGCSHARP)
+%typemap(cscode) ext::optional<bool> %{
+    public static implicit operator OptionalBool(bool b) => new OptionalBool(b);
+%}
+#endif
+namespace ext {
+    template<class T>
+    class optional {
+      public:
+        optional(T t);
+    };
+}
+%template(OptionalBool) ext::optional<bool>;
 #endif
 
 %{

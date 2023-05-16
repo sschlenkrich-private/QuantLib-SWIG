@@ -17,6 +17,7 @@
 """
 
 import unittest
+import math
 import QuantLib as ql
 
 
@@ -192,7 +193,7 @@ def build_linear_swaption_cube(
         vega_weighted_smile_fit=False):
     vol_spreads = [[ql.QuoteHandle(ql.SimpleQuote(v)) for v in row]
                    for row in vol_spreads]
-    cube = ql.SwaptionVolCube2(
+    cube = ql.InterpolatedSwaptionVolatilityCube(
         ql.SwaptionVolatilityStructureHandle(volatility_matrix),
         spread_opt_tenors,
         spread_swap_tenors,
@@ -231,7 +232,7 @@ def build_sabr_swaption_cube(
                  for row in vol_spreads]
     guess = sabr_parameters_guess(
         len(spread_opt_tenors), len(spread_swap_tenors))
-    cube = ql.SwaptionVolCube1(
+    cube = ql.SabrSwaptionVolatilityCube(
         ql.SwaptionVolatilityStructureHandle(volatility_matrix),
         spread_opt_tenors,
         spread_swap_tenors,
@@ -263,8 +264,7 @@ class SwaptionVolatilityCubeTest(unittest.TestCase):
     def tearDown(self):
         ql.Settings.instance().evaluationDate = ql.Date()
 
-    def _get_fair_rate(self, option_tenor, swap_tenor):
-        exercise_date = CAL.advance(self.today, option_tenor)
+    def _get_fair_rate(self, exercise_date, swap_tenor):
         start_date = CAL.advance(exercise_date, ql.Period(2, ql.Days))
         underlying = ql.MakeVanillaSwap(
             swap_tenor, self.idx, 0.0, ql.Period(0, ql.Days),
@@ -280,9 +280,9 @@ class SwaptionVolatilityCubeTest(unittest.TestCase):
             self, cube, interpolation, vol_type):
         opt_tenor = ql.Period(1, ql.Years)
         swap_tenor = ql.Period(10, ql.Years)
-        expected_atm_strike = self._get_fair_rate(opt_tenor, swap_tenor)
-        actual_atm_strike = cube.atmStrike(
-            cube.optionDateFromTenor(opt_tenor), swap_tenor)
+        exercise_date = cube.optionDateFromTenor(opt_tenor)
+        expected_atm_strike = self._get_fair_rate(exercise_date, swap_tenor)
+        actual_atm_strike = cube.atmStrike(exercise_date, swap_tenor)
         fail_msg = """ ATM strike test failed for:
                         cube interpolation: {interpolation}
                         volatility_type: {vol_type}
@@ -527,6 +527,13 @@ class SviSmileSectionTest(unittest.TestCase):
     def setUp(self):
         ql.Settings.instance().evaluationDate = ql.Date(3, ql.May, 2022)
 
+    def tearDown(self):
+        # The objects created in this test are not immediately garbage-collected
+        # by PyPy, and can throw errors when the global evaluation date changes.
+        # Thus, we need to force a collection when we're done with them.
+        import gc
+        gc.collect()
+
     def test_svi_smile_section(self):
         """Testing the SviSmileSection against already fitted parameters"""
         expiry_date = ql.Date(16, ql.December, 2022)
@@ -565,9 +572,67 @@ class SviSmileSectionTest(unittest.TestCase):
         self.assertAlmostEqual(interpolated_smile.volatility(257.328), 0.739775, places=5)
 
 
+class AndreasenHugeVolatilityTest(unittest.TestCase):
+    def testLocalVolCalibration(self):
+        """ Testing Andreasen-Huge Local Volatility calibration"""
+
+        today = ql.Settings.instance().evaluationDate
+
+        spot = ql.QuoteHandle(ql.SimpleQuote(100))
+
+        dc = ql.Actual365Fixed()
+        qTS = ql.YieldTermStructureHandle(ql.FlatForward(today, 0.025, dc))
+        rTS = ql.YieldTermStructureHandle(ql.FlatForward(today, 0.05, dc))
+
+        vol_data = [
+            # maturity in days, strike, volatility
+            (30, 75, 0.13),
+            (30, 100, 0.26),
+            (30, 125, 0.3),
+            (180, 80, 0.4),
+            (180, 150, 0.6),
+            (365, 110, 0.5)]
+
+        calibration_set = ql.CalibrationSet(
+            [(
+                ql.VanillaOption(
+                    ql.PlainVanillaPayoff(ql.Option.Call, strike),
+                    ql.EuropeanExercise(today + ql.Period(maturity_in_days, ql.Days))
+                ),
+                ql.SimpleQuote(volatility)
+            ) for maturity_in_days, strike, volatility in vol_data]
+        )
+
+        local_vol = ql.LocalVolTermStructureHandle(
+            ql.AndreasenHugeLocalVolAdapter(
+                ql.AndreasenHugeVolatilityInterpl(calibration_set, spot, rTS, qTS)
+            )
+        )
+
+        option = calibration_set[-2][0]  # maturity in days: 180, strike: 150, vol: 0.6
+
+        dummy_vol = ql.BlackVolTermStructureHandle()
+        local_vol_process = ql.GeneralizedBlackScholesProcess(spot, qTS, rTS, dummy_vol, local_vol)
+
+        option.setPricingEngine(ql.MCEuropeanEngine(
+            local_vol_process, "lowdiscrepancy",
+            timeSteps=75, brownianBridge=True, requiredSamples=16000, seed=42)
+        )
+
+        t = dc.yearFraction(today, option.exercise().lastDate())
+        fwd = spot.value() * qTS.discount(t) / rTS.discount(t)
+        vol = calibration_set[-2][1].value()
+
+        expected = ql.BlackCalculator(
+            ql.as_plain_vanilla_payoff(option.payoff()), fwd, vol * math.sqrt(t), rTS.discount(t)).value()
+
+        self.assertAlmostEqual(expected, option.NPV(), delta=0.2)
+
+
 if __name__ == "__main__":
     print("testing QuantLib " + ql.__version__)
     suite = unittest.TestSuite()
     suite.addTest(unittest.makeSuite(SwaptionVolatilityCubeTest, "test"))
     suite.addTest(unittest.makeSuite(SviSmileSectionTest, "test"))
+    suite.addTest(unittest.makeSuite(AndreasenHugeVolatilityTest, "test"))
     unittest.TextTestRunner(verbosity=2).run(suite)

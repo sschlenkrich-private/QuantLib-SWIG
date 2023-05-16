@@ -1,386 +1,520 @@
-commit cb7c5fe30c4d82e88b874938bfe7d502d3988676
+commit fc8b7c1b5aa0d39b0b20b7705128f2277e1d9290
 Author: Luigi Ballabio <luigi.ballabio@gmail.com>
 Date:   Mon, 12 Apr 2021 11:12:19 +0200
 
-    Set version to 1.27 final.
+    Set version to 1.30 final.
 
  Python/setup.py | 2 +-
  configure.ac    | 2 +-
  2 files changed, 2 insertions(+), 2 deletions(-)
 
-commit e8ffe044d457673b0793853bb34c1e8f16fc32c0
-Merge: 5d54473 ea832ff
+commit 8b28d76cfb91d9e08137677094a11a3411bcb6d6
 Author: Luigi Ballabio <luigi.ballabio@gmail.com>
-Date:   Fri, 15 Jul 2022 12:12:02 +0200
+Date:   Fri, 14 Apr 2023 10:29:18 +0200
 
-    Merge pull request #478.
-    
-    Map `pair<Size,Size>` to `pair<unsigned int, unsigned int>` for 32-bit compatibility
+    Work around multiple inheritance in C# and Java
 
-commit ea832ffbb3fc49e7ba20a961aecabd3e32a801ff
+ SWIG/localvolatilities.i | 27 +++++++++++++++++++++++++--
+ 1 file changed, 25 insertions(+), 2 deletions(-)
+
+commit 27ba38b0732690a607dc5a61a064eb8c5fe30288
 Author: Luigi Ballabio <luigi.ballabio@gmail.com>
-Date:   Fri, 15 Jul 2022 11:09:19 +0200
+Date:   Thu, 13 Apr 2023 09:14:24 +0200
 
-    Map pair<Size,Size> to pair<unsigned,unsigned> for 32-bit compatibility
+    Avoid deprecated names
 
- SWIG/vectors.i      |  3 +--
- SWIG/volatilities.i | 18 ++++++++++++------
- 2 files changed, 13 insertions(+), 8 deletions(-)
+ Python/test/cms.py          | 4 ++--
+ Python/test/ratehelpers.py  | 1 -
+ Python/test/volatilities.py | 4 ++--
+ 3 files changed, 4 insertions(+), 5 deletions(-)
 
-commit 5d54473af444c6be76f97dd32e4d7ee9af7c9055
+commit b4a56c1ac42a13384fcb34e532b11f803ba9ffbd
+Author: Luigi Ballabio <luigi.ballabio@gmail.com>
+Date:   Thu, 13 Apr 2023 09:02:13 +0200
+
+    Avoid test failure when using PyPy
+
+ Python/test/volatilities.py | 7 +++++++
+ 1 file changed, 7 insertions(+)
+
+commit 7758104ed00c42740c7cf91a4f0e1fb7a7ce7e93
 Author: Luigi Ballabio <luigi.ballabio@gmail.com>
 Date:   Thu, 14 Apr 2022 18:29:12 +0200
 
-    Set version to 1.27 rc
+    Set version to 1.30 rc
 
  Python/setup.py | 2 +-
  configure.ac    | 2 +-
  2 files changed, 2 insertions(+), 2 deletions(-)
 
-commit a1f0f6329452b188739d9225e46e9323f0f80a28
+commit 41fca6eec76ddfa20568914427144fc12a7c0f68
 Author: Luigi Ballabio <luigi.ballabio@gmail.com>
-Date:   Wed, 13 Jul 2022 17:29:56 +0200
+Date:   Wed, 12 Apr 2023 14:53:38 +0200
 
     Update news and changelog
 
- ChangeLog.txt | 504 ++++++++++++++++++++++++++--------------------------------
- News.md       |  42 ++---
- 2 files changed, 248 insertions(+), 298 deletions(-)
+ ChangeLog.txt | 785 ++++++++++++++++++++++------------------------------------
+ News.md       |  62 ++---
+ 2 files changed, 327 insertions(+), 520 deletions(-)
 
-commit f4fc9fe1da48ea7e25d473128811ade78ec2bee6
-Merge: 5fbd5aa e108360
+commit 3abd4fd6e01f6ab5e4f1c08f9b3476447a674896
+Merge: 22311d2 e2c127d
 Author: Luigi Ballabio <luigi.ballabio@gmail.com>
-Date:   Thu, 7 Jul 2022 12:16:16 +0200
+Date:   Tue, 11 Apr 2023 11:30:45 +0200
 
-    Merge pull request #477.
+    Add support for `ext::optional` (#553)
+
+commit 22311d25912dc31c6e602b4430f8fb3e4326f10f
+Merge: 62b5e6d 255371e
+Author: Luigi Ballabio <luigi.ballabio@gmail.com>
+Date:   Tue, 11 Apr 2023 10:55:20 +0200
+
+    Export `EquityCashFlow` and corresponding pricer (#551)
+
+commit e2c127dd5a55a83a43045659bf7df0ab26f0773f
+Author: Luigi Ballabio <luigi.ballabio@gmail.com>
+Date:   Tue, 11 Apr 2023 10:10:16 +0200
+
+    Add support for ext::optional
+
+ .github/workflows/namespaces.yml |  2 ++
+ SWIG/calendars.i                 |  6 +++---
+ SWIG/cashflows.i                 |  8 ++++----
+ SWIG/common.i                    | 12 ++++++------
+ SWIG/creditdefaultswap.i         |  4 ++--
+ SWIG/date.i                      |  8 ++++----
+ SWIG/options.i                   |  2 +-
+ SWIG/ratehelpers.i               | 25 ++++++++++---------------
+ SWIG/scheduler.i                 | 15 +++++++--------
+ SWIG/swap.i                      |  6 +++---
+ SWIG/volatilities.i              |  6 +++---
+ 11 files changed, 45 insertions(+), 49 deletions(-)
+
+commit 62b5e6dec5e5bef7de5e2203d29882bdae4df347
+Merge: 2372654 5f880d0
+Author: Luigi Ballabio <luigi.ballabio@gmail.com>
+Date:   Tue, 11 Apr 2023 09:49:42 +0200
+
+    Export new CPICoupon constructors (#550)
+
+commit 255371e22063714153894b93f1ff1de31a32d4a6
+Author: Luigi Ballabio <luigi.ballabio@gmail.com>
+Date:   Tue, 11 Apr 2023 09:48:20 +0200
+
+    Export EquityCashflow and corresponding pricer
+
+ SWIG/cashflows.i | 39 +++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 39 insertions(+)
+
+commit 2372654d725ff7c4e01f1f6c704c0e7dc7581686
+Author: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>
+Date:   Mon, 10 Apr 2023 18:56:30 +0000
+
+    Bump peter-evans/create-pull-request from 4 to 5
     
-    Add missing `std::pair<Size,Size>` mapping
-
-commit e10836057ce6592aee730ccd9177c32df16ddbd6
-Author: Luigi Ballabio <luigi.ballabio@gmail.com>
-Date:   Thu, 7 Jul 2022 10:34:12 +0200
-
-    Add missing std::pair<Size,Size> mapping
-
- SWIG/vectors.i      | 2 ++
- SWIG/volatilities.i | 3 +++
- 2 files changed, 5 insertions(+)
-
-commit 5fbd5aa47436c7142e3f202a5fafd132f183104c
-Merge: f58c579 b0eab63
-Author: Luigi Ballabio <luigi.ballabio@gmail.com>
-Date:   Wed, 6 Jul 2022 16:55:16 +0200
-
-    Merge pull request #476.
+    Bumps [peter-evans/create-pull-request](https://github.com/peter-evans/create-pull-request) from 4 to 5.
+    - [Release notes](https://github.com/peter-evans/create-pull-request/releases)
+    - [Commits](https://github.com/peter-evans/create-pull-request/compare/v4...v5)
     
-    Export missing CDS methods
-
-commit b0eab63672165a805f4ba41885ff44b1eb1c4ad9
-Author: Luigi Ballabio <luigi.ballabio@gmail.com>
-Date:   Wed, 6 Jul 2022 15:18:08 +0200
-
-    Export missing CDS methods
-
- SWIG/creditdefaultswap.i | 21 +++++++++++++++------
- 1 file changed, 15 insertions(+), 6 deletions(-)
-
-commit f58c57941dc9ca50e090415d27d16c0d15f70edb
-Merge: c7fac27 d2857e0
-Author: Luigi Ballabio <luigi.ballabio@gmail.com>
-Date:   Wed, 29 Jun 2022 15:15:04 +0200
-
-    Merge pull request #473.
+    ---
+    updated-dependencies:
+    - dependency-name: peter-evans/create-pull-request
+      dependency-type: direct:production
+      update-type: version-update:semver-major
+    ...
     
-    Next and previous cash flow amount
+    Signed-off-by: dependabot[bot] <support@github.com>
 
-commit d2857e06a452a71ba51dd3781c657d66f2d43a7d
-Author: Marcin Rybacki <m.rybacki@basispoint.io>
-Date:   Tue, 28 Jun 2022 19:23:49 +0200
+ .github/workflows/copyrights.yml | 2 +-
+ .github/workflows/misspell.yml   | 2 +-
+ .github/workflows/namespaces.yml | 2 +-
+ 3 files changed, 3 insertions(+), 3 deletions(-)
 
-    Made function args more descriptive.
-
- Python/test/coupons.py | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
-
-commit 073efa25ff381206f6fea7f9097b2ed688f3b804
-Author: Marcin Rybacki <m.rybacki@basispoint.io>
-Date:   Tue, 28 Jun 2022 19:20:20 +0200
-
-    Setting evaluation date is not required.
-
- Python/test/coupons.py | 1 -
- 1 file changed, 1 deletion(-)
-
-commit 0d2474025c4d1a0a7810a17cb16a3af039e6bbf2
-Author: Marcin Rybacki <m.rybacki@basispoint.io>
-Date:   Tue, 28 Jun 2022 19:18:45 +0200
-
-    Added unit tests in Python.
-
- Python/test/QuantLibTestSuite.py |  2 ++
- Python/test/coupons.py           | 34 ++++++++++++++++++++++++++++++++++
- 2 files changed, 36 insertions(+)
-
-commit bdf9d406ff2f659488027cb52f63faa05fccba48
-Author: Marcin Rybacki <m.rybacki@basispoint.io>
-Date:   Tue, 28 Jun 2022 19:06:18 +0200
-
-    Exposed functions returning next and previous cash flow amount
-
- SWIG/cashflows.i | 8 ++++++++
- 1 file changed, 8 insertions(+)
-
-commit c7fac275b56c4a423877835068a9a737192e621b
-Merge: 6ac2384 dc0d1e4
+commit 5f880d08c5af28f9a5ae53e90f1c510ef77fd98f
 Author: Luigi Ballabio <luigi.ballabio@gmail.com>
-Date:   Sat, 25 Jun 2022 17:29:04 +0200
+Date:   Tue, 11 Apr 2023 08:44:21 +0200
 
-    Merge pull request #472.
-    
-    Shorter name for default zero-spreaded curve.
+    Export new CPICoupon constructors
 
-commit dc0d1e42021d19dc7166b3a155266bc6c391c34d
+ SWIG/inflation.i | 29 +++++++++++++++++++++++++++++
+ 1 file changed, 29 insertions(+)
+
+commit 036615fb54f83f1378d998c8a7bd15c03166eee5
+Merge: c479741 c9ad43d
 Author: Luigi Ballabio <luigi.ballabio@gmail.com>
-Date:   Sat, 25 Jun 2022 14:02:44 +0200
+Date:   Sat, 8 Apr 2023 13:11:05 +0200
 
-    Shorter name for default zero-spreaded curve.
+    added setInterpolation and tests for FixedLocalVolSurface (#547)
+
+commit c9ad43d62c39cd0ad353277429e4b3d88a77bfcc
+Author: Luigi Ballabio <luigi.ballabio@gmail.com>
+Date:   Sat, 8 Apr 2023 10:48:50 +0200
+
+    Make Codacy happy about whitespace
+
+ Python/test/slv.py | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
+
+commit c4797414ce98f90403609c2f461597101d12ba6d
+Merge: f41093f 559cab4
+Author: Luigi Ballabio <luigi.ballabio@gmail.com>
+Date:   Sat, 8 Apr 2023 10:37:44 +0200
+
+    Rename SwaptionVolCube1 and SwaptionVolCube2 (#548)
+
+commit f41093f953123a7e66e4c22c1e9c945b4f7dd46a
+Merge: df46a3c d2896ca
+Author: Luigi Ballabio <luigi.ballabio@gmail.com>
+Date:   Fri, 7 Apr 2023 19:27:43 +0200
+
+    A few miscellaneous additions (#546)
+
+commit 8e162d183825ca7d395f99f661ec0b546985e063
+Author: klaus spanderen <klaus@spanderen.de>
+Date:   Fri, 7 Apr 2023 19:27:39 +0200
+
+    revert typedef
+
+ SWIG/vectors.i | 2 --
+ 1 file changed, 2 deletions(-)
+
+commit dfafd16b5e0581b9206e6c1d771b1bd889b210a2
+Author: klaus spanderen <klaus@spanderen.de>
+Date:   Fri, 7 Apr 2023 19:25:14 +0200
+
+    added setInterpolation and tests for FixedLocalVolSurface
+
+ Python/test/slv.py       |  2 ++
+ SWIG/localvolatilities.i | 11 +++++++++++
+ 2 files changed, 13 insertions(+)
+
+commit d5a66914f124794262e08510d2f618106f9b7dd4
+Author: klaus spanderen <klaus@spanderen.de>
+Date:   Fri, 7 Apr 2023 19:24:34 +0200
+
+    added setInterpolation and tests for FixedLocalVolSurface
+
+ Python/test/slv.py | 22 ++++++++++++++++++++++
+ SWIG/vectors.i     |  2 ++
+ 2 files changed, 24 insertions(+)
+
+commit 559cab4ad991c12959b8b2542d7315b45dcd507b
+Author: Luigi Ballabio <luigi.ballabio@gmail.com>
+Date:   Fri, 7 Apr 2023 18:02:03 +0200
+
+    Remove obsolete alias
+
+ SWIG/barrieroptions.i | 2 --
+ 1 file changed, 2 deletions(-)
+
+commit 21a181426c249c2713cd2d9b013031808e20e2ca
+Author: Luigi Ballabio <luigi.ballabio@gmail.com>
+Date:   Fri, 7 Apr 2023 18:01:33 +0200
+
+    Renamed SwaptionVolCube1 and SwaptionVolCube2
+
+ SWIG/volatilities.i | 34 +++++++++++++++++++---------------
+ 1 file changed, 19 insertions(+), 15 deletions(-)
+
+commit d2896cafa9870d5c45e10d6391f18d3fab198e17
+Author: Luigi Ballabio <luigi.ballabio@gmail.com>
+Date:   Fri, 7 Apr 2023 17:33:00 +0200
+
+    A few miscellaneous additions
+
+ SWIG/calendars.i  |  6 +++++-
+ SWIG/currencies.i | 12 +++++++++++-
+ SWIG/inflation.i  | 10 ++++++++++
+ SWIG/options.i    |  1 +
+ 4 files changed, 27 insertions(+), 2 deletions(-)
+
+commit df46a3c66bf33d3d12baf6068ffd78e6d9dd0fe8
+Merge: 6c743de 1889dfc
+Author: Luigi Ballabio <luigi.ballabio@gmail.com>
+Date:   Fri, 7 Apr 2023 17:32:27 +0200
+
+    Allow passing dividends to pricing engines (#545)
+
+commit 1889dfc5dc7c9eb914075ce5404991edb3f712fa
+Author: Luigi Ballabio <luigi.ballabio@gmail.com>
+Date:   Fri, 7 Apr 2023 16:27:50 +0200
+
+    Allow passing dividends to pricing engines
+
+ Python/test/options.py    |   3 +-
+ SWIG/barrieroptions.i     |  39 ++++++++++++--
+ SWIG/calibratedmodel.i    |  99 ++++++++++++++++++++++++++++++++++
+ SWIG/calibrationhelpers.i |  59 +-------------------
+ SWIG/dividends.i          |   9 ++--
+ SWIG/options.i            | 134 ++++++++++++++++++++++++++++++++++++++--------
+ SWIG/ql.i                 |   1 +
+ SWIG/shortratemodels.i    |   2 +-
+ SWIG/volatilities.i       |   3 +-
+ 9 files changed, 256 insertions(+), 93 deletions(-)
+
+commit 6c743de6f20f2672e07ffe6c215fa8f49f64acfa
+Author: Luigi Ballabio <luigi.ballabio@gmail.com>
+Date:   Fri, 7 Apr 2023 14:26:07 +0200
+
+    Fix for workflows creating pull requests.
     
-    This is also the name used in the C++ version.
+    The existing branch name started causing the PR creation to fail.
+    Simplifying it seems to fix the problem.
 
- SWIG/termstructures.i | 1 +
+ .github/workflows/copyrights.yml | 2 +-
+ .github/workflows/misspell.yml   | 2 +-
+ .github/workflows/namespaces.yml | 2 +-
+ 3 files changed, 3 insertions(+), 3 deletions(-)
+
+commit 49ef3d8013eba7e06a8b3bb723ee8da0a0ec921c
+Merge: aaf254e 7bd9669
+Author: Luigi Ballabio <luigi.ballabio@gmail.com>
+Date:   Fri, 7 Apr 2023 14:23:41 +0200
+
+    Export FixedLocalVolSurface and GridModelLocalVolSurface (#543)
+
+commit 7bd96693197a1174b8c0ad65f03244591143c79a
+Author: Luigi Ballabio <luigi.ballabio@gmail.com>
+Date:   Fri, 7 Apr 2023 12:32:23 +0200
+
+    Export FixedLocalVolSurface and GridModelLocalVolSurface
+
+ LICENSE.TXT              |   2 +-
+ SWIG/localvolatilities.i | 170 +++++++++++++++++++++++++++++++++++++++++++++++
+ SWIG/ql.i                |   1 +
+ SWIG/vectors.i           |   2 +
+ SWIG/volatilities.i      |  65 ------------------
+ 5 files changed, 174 insertions(+), 66 deletions(-)
+
+commit aaf254eb39af2d6c3973b0f0b9e5743015bfb217
+Author: Luigi Ballabio <luigi.ballabio@gmail.com>
+Date:   Wed, 5 Apr 2023 15:34:23 +0200
+
+    Disable false-positive warning
+
+ SWIG/swap.i | 1 +
  1 file changed, 1 insertion(+)
 
-commit 6ac238490782927488f5cbeb8040a05a72070125
-Merge: e583aae 7200820
+commit c83f4433a6fa178c44831b30bbc904a2619cf4c3
 Author: Luigi Ballabio <luigi.ballabio@gmail.com>
-Date:   Fri, 17 Jun 2022 14:36:57 +0200
+Date:   Wed, 5 Apr 2023 13:01:32 +0200
 
-    Merge pull request #471.
+    Avoid deprecated Pandas API in examples
+
+ Python/examples/american-option.py | 7 ++++---
+ Python/examples/european-option.py | 2 +-
+ 2 files changed, 5 insertions(+), 4 deletions(-)
+
+commit 7df160dc30f15bef034884367b574322de03d090
+Author: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>
+Date:   Mon, 27 Mar 2023 18:56:31 +0000
+
+    Bump actions/stale from 7 to 8
     
-    Fix code generation when Java's `AutoCloseable` support is enabled
+    Bumps [actions/stale](https://github.com/actions/stale) from 7 to 8.
+    - [Release notes](https://github.com/actions/stale/releases)
+    - [Changelog](https://github.com/actions/stale/blob/main/CHANGELOG.md)
+    - [Commits](https://github.com/actions/stale/compare/v7...v8)
+    
+    ---
+    updated-dependencies:
+    - dependency-name: actions/stale
+      dependency-type: direct:production
+      update-type: version-update:semver-major
+    ...
+    
+    Signed-off-by: dependabot[bot] <support@github.com>
 
-commit 7200820ec23a9212d14f344485cc2db5c1d0ef2c
+ .github/workflows/stale.yml | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+commit 99b9dd4538630eed5632c96ed98dc632b4aad033
 Author: Luigi Ballabio <luigi.ballabio@gmail.com>
-Date:   Fri, 17 Jun 2022 10:40:42 +0200
+Date:   Sun, 26 Mar 2023 17:27:50 +0200
 
-    Test two different Java configurations
+    Update list of languages in README
 
- .build/java-new.build                 |  9 +++++++++
- .build/{java.build => java-old.build} |  0
- .github/workflows/linux.yml           | 12 ++++++++++--
- 3 files changed, 19 insertions(+), 2 deletions(-)
+ README.md | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-commit 25bdefe4234f04eb7835542540c2047ed8a96173
+commit 0773549390427c6a9076efa5b5af707e4edfb50a
 Author: Luigi Ballabio <luigi.ballabio@gmail.com>
-Date:   Fri, 17 Jun 2022 10:40:02 +0200
+Date:   Thu, 16 Mar 2023 16:46:50 +0100
 
-    Fix code generation with AutoCloseable support enabled
+    Try adding binder configuration
 
- SWIG/quantlib.i   | 9 ++++++++-
- SWIG/timeseries.i | 2 +-
- 2 files changed, 9 insertions(+), 2 deletions(-)
+ Makefile.am                                     |  2 +-
+ Python/examples/README.md                       |  4 ++--
+ README.md                                       |  2 +-
+ binder/labconfig/default_setting_overrides.json | 13 +++++++++++++
+ binder/postBuild                                |  3 +++
+ requirements.txt => binder/requirements.txt     |  0
+ 6 files changed, 20 insertions(+), 4 deletions(-)
 
-commit e583aae9265603f06900686f0a14333f9b22d037
+commit 2794bb05aaed83e0d2c32f58d6c6a98004683c77
 Author: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>
-Date:   Mon, 6 Jun 2022 06:50:40 +0000
+Date:   Tue, 7 Mar 2023 10:13:07 +0000
 
     Update copyright list in license
 
- LICENSE.TXT | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ LICENSE.TXT | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-commit bac97aa4a6346e3df39be9f23205aed664e37147
-Merge: 0e174c2 9a187bd
+commit 4d367d542dea144312136c724381b41be8123705
+Merge: 0bdb6e4 61c09f0
 Author: Luigi Ballabio <luigi.ballabio@gmail.com>
-Date:   Mon, 6 Jun 2022 08:50:21 +0200
+Date:   Tue, 7 Mar 2023 11:12:50 +0100
 
-    Merge pull request #467.
-    
-    Expose Turnbull-Wakeman engine
+    Expose Austrian, Botswanan and Romanian calendars (#529)
 
-commit 0e174c2aa6e8bf212e005b5d04ca50a7c9667e52
-Merge: 56d9cac 5214926
+commit 0bdb6e4d1f9453c22cd756837f4e1b4f15987a10
+Merge: 8077c47 7519345
 Author: Luigi Ballabio <luigi.ballabio@gmail.com>
-Date:   Sun, 5 Jun 2022 17:52:43 +0200
+Date:   Tue, 7 Mar 2023 11:12:06 +0100
 
-    Merge pull request #468.
-    
-    Expose quanto term structure
+    Equity index & equity total return swap (#536)
 
-commit 521492665e7dd06b85dc8bcb3df6e1ef5d4ef897
-Author: itsguccy <bohlensebastian@aol.de>
-Date:   Sat, 4 Jun 2022 22:56:54 +0200
+commit 7519345de43e2586e5f2da8fe4e6ba0529c29272
+Author: Marcin Rybacki <m.rybacki@basispoint.io>
+Date:   Mon, 6 Mar 2023 16:40:33 +0100
 
-    satisfy linter
+    Fixed codacy errors.
 
- Python/test/termstructures.py | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ Python/test/equityindex.py |  6 +++---
+ Python/test/swap.py        | 24 ++++++++++++------------
+ 2 files changed, 15 insertions(+), 15 deletions(-)
 
-commit 785637d1b751783145b14d8a36489fb0da59efec
-Author: itsguccy <bohlensebastian@aol.de>
-Date:   Sat, 4 Jun 2022 22:13:04 +0200
+commit abc4f052ebcef5235905fd0306ae151833812f5f
+Author: Marcin Rybacki <m.rybacki@basispoint.io>
+Date:   Mon, 6 Mar 2023 16:03:35 +0100
 
-    add fail message to quanto term structure test
+    Updated copyrights.
 
- Python/test/termstructures.py | 20 +++++++++++++++++++-
- 1 file changed, 19 insertions(+), 1 deletion(-)
-
-commit 0b06df8974960605a6a495932a2386a0db67d040
-Author: itsguccy <bohlensebastian@aol.de>
-Date:   Sat, 4 Jun 2022 21:51:31 +0200
-
-    test QuantoTermStructure exposure against QuantoEuropeanEngine
-
- Python/test/termstructures.py | 71 +++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 71 insertions(+)
-
-commit 2ce27b4b38b7b5fb054590dcae886da7381ed840
-Author: itsguccy <bohlensebastian@aol.de>
-Date:   Sat, 4 Jun 2022 21:07:16 +0200
-
-    expose QuantoTermStructure
-
- SWIG/termstructures.i | 19 +++++++++++++++++++
- 1 file changed, 19 insertions(+)
-
-commit 9a187bd1f4721766eaafea4e1db0eafdb0a530ca
-Author: jackgillett101 <jack.gillett@cantab.net>
-Date:   Sat, 4 Jun 2022 21:37:19 +0800
-
-    Exposing Turnbul-Wakeman engine to SWIG (community request)
-
- SWIG/asianoptions.i | 12 +++++++++++-
- 1 file changed, 11 insertions(+), 1 deletion(-)
-
-commit 56d9cac17439ed8f42daf2c84c0bb9ac45ae777d
-Author: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>
-Date:   Thu, 5 May 2022 07:19:24 +0000
-
-    Update copyright list in license
-
- LICENSE.TXT | 1 +
+ SWIG/swap.i | 1 +
  1 file changed, 1 insertion(+)
 
-commit f7c20c15f9c88cf1985246771a2b8d3a4ef7360c
-Merge: 9696087 9c1825d
-Author: Luigi Ballabio <luigi.ballabio@gmail.com>
-Date:   Thu, 5 May 2022 09:19:07 +0200
+commit 1ffdf1c5f40176040245fd315ce362112a0f355a
+Author: Marcin Rybacki <m.rybacki@basispoint.io>
+Date:   Wed, 1 Mar 2023 09:32:41 +0100
 
-    Merge pull request #462.
-    
-    Export `SviSmileSection` and `SviInterpolatedSmileSection`
+    Finalized Python unit tests for equity total return swap.
 
-commit 9c1825d2e19c4fbc57149278985823f90e48d93b
-Author: Fredrik Gerdin Börjesson <fredrik.gerdin.borjesson@hotmail.com>
-Date:   Wed, 4 May 2022 18:15:39 +0200
+ Python/test/swap.py | 21 ++++++++++-----------
+ 1 file changed, 10 insertions(+), 11 deletions(-)
 
-    Fix Codacy issues
+commit ccd18c08147d31a665919befc6eea4e0df4c68a4
+Author: Marcin Rybacki <m.rybacki@basispoint.io>
+Date:   Wed, 1 Mar 2023 09:15:46 +0100
 
- Python/test/volatilities.py | 5 ++---
+    Adjusted Python unit tests.
+
+ Python/test/equityindex.py | 5 ++---
  1 file changed, 2 insertions(+), 3 deletions(-)
 
-commit 2ab6f7bc5b4e2e35e015ebf65eb1cf92900af570
+commit fc765db3c42c92b82bfa2672909936392d2b2a47
+Author: Marcin Rybacki <m.rybacki@basispoint.io>
+Date:   Wed, 1 Mar 2023 09:07:23 +0100
+
+    Updated equity index declaration.
+
+ SWIG/indexes.i | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
+
+commit a65e1bb7c6dfe5a9979b5d8c2a8bd40f7dc2c25e
+Author: Marcin Rybacki <m.rybacki@basispoint.io>
+Date:   Tue, 28 Feb 2023 17:21:04 +0100
+
+    Removed currency from equity index constructor.
+
+ Python/test/equityindex.py | 4 +---
+ SWIG/indexes.i             | 3 ---
+ 2 files changed, 1 insertion(+), 6 deletions(-)
+
+commit 3e383df8afef1d0f9fc69e612fe1fffff3695d04
+Author: Marcin Rybacki <m.rybacki@basispoint.io>
+Date:   Tue, 28 Feb 2023 17:12:05 +0100
+
+    Added EquityTotalReturnSwap declaration and a few unit tests in Python.
+
+ Python/test/QuantLibTestSuite.py |   3 +-
+ Python/test/equityindex.py       |   6 +--
+ Python/test/swap.py              | 114 ++++++++++++++++++++++++++++++++++++++-
+ SWIG/swap.i                      |  51 ++++++++++++++++++
+ 4 files changed, 167 insertions(+), 7 deletions(-)
+
+commit 61c09f014a1c3cb907d153c6b6ab98af9aeec7b4
 Author: Fredrik Gerdin Börjesson <fredrik.gerdin.borjesson@hotmail.com>
-Date:   Wed, 4 May 2022 17:53:59 +0200
+Date:   Wed, 8 Feb 2023 14:18:11 +0100
 
-    Add docstrings to explain SVI tests
+    Expose Austrian, Botswanan and Romanian calendars
 
- Python/test/volatilities.py | 2 ++
- 1 file changed, 2 insertions(+)
+ SWIG/calendars.i | 17 +++++++++++++++--
+ 1 file changed, 15 insertions(+), 2 deletions(-)
 
-commit bc2c66bbc88ef4cfb308d59c6bcd796134c2cd3e
-Author: Fredrik Gerdin Börjesson <fredrik.gerdin.borjesson@hotmail.com>
-Date:   Wed, 4 May 2022 17:53:46 +0200
+commit bcdbf06de2767c48c285f63f4fa03f33aad5d6b7
+Author: Marcin Rybacki <m.rybacki@basispoint.io>
+Date:   Mon, 6 Feb 2023 17:10:19 +0100
 
-    Add shared setup for SVI tests
+    Fixed unit test.
 
- Python/test/volatilities.py | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ Python/test/equityindex.py | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-commit eb35fbce78cd1c981648d06981601a7f2f4216fa
-Author: Fredrik Gerdin Börjesson <fredrik.gerdin.borjesson@hotmail.com>
-Date:   Wed, 4 May 2022 16:45:39 +0200
+commit e25f83d5ef529b2d89b652d7e68aed14b1ad53a4
+Author: Marcin Rybacki <m.rybacki@basispoint.io>
+Date:   Mon, 6 Feb 2023 16:33:39 +0100
 
-    Add two unit tests for SVI smile sections
+    Exposed equity index.
 
- Python/test/QuantLibTestSuite.py |  3 ++-
- Python/test/volatilities.py      | 42 ++++++++++++++++++++++++++++++++++++++++
- 2 files changed, 44 insertions(+), 1 deletion(-)
+ Python/test/QuantLibTestSuite.py |  2 ++
+ Python/test/equityindex.py       | 72 ++++++++++++++++++++++++++++++++++++++++
+ SWIG/indexes.i                   | 24 ++++++++++++++
+ 3 files changed, 98 insertions(+)
 
-commit 86f2dae7219d3c30dd2bac95a626e84b3b00d624
-Author: Fredrik Gerdin Börjesson <fredrik.gerdin.borjesson@hotmail.com>
-Date:   Wed, 4 May 2022 16:44:20 +0200
-
-    Add wrappers for `SviInterpolatedSmileSection`
-
- SWIG/volatilities.i | 60 +++++++++++++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 60 insertions(+)
-
-commit f7b3c7243f80a47dc51f160fe445c31e01257d15
-Author: Fredrik Gerdin Börjesson <fredrik.gerdin.borjesson@hotmail.com>
-Date:   Wed, 4 May 2022 16:44:02 +0200
-
-    Add wrappers for `SviSmileSection`
-
- SWIG/volatilities.i | 15 +++++++++++++++
- 1 file changed, 15 insertions(+)
-
-commit 9696087250f540bea27bc2bf4df94711c5b441a1
-Merge: a88a28b 55b28f2
+commit 8077c47ab92f9d5b47ed9f6dbd4b9157e8771802
 Author: Luigi Ballabio <luigi.ballabio@gmail.com>
-Date:   Mon, 2 May 2022 18:25:04 +0200
+Date:   Mon, 30 Jan 2023 10:57:57 +0100
 
-    Merge pull request #461.
-    
-    Remove deleted `FDShoutEngine` from wrappers
+    Boost libraries are no longer needed for linking
 
-commit 55b28f2b447b35c41c6b53540f047b125bb489fd
-Author: Fredrik Gerdin Börjesson <fredrik.gerdin.borjesson@hotmail.com>
-Date:   Mon, 2 May 2022 17:42:01 +0200
+ SWIG/ql.i | 11 -----------
+ 1 file changed, 11 deletions(-)
 
-    Remove FDShoutEngine from options interface
-
- SWIG/options.i | 18 ------------------
- 1 file changed, 18 deletions(-)
-
-commit a88a28b95e7abdacd1112f23864a63523433711b
+commit d90fe309be5ae13f52547fb8196e9dcd8e35fdd6
+Merge: fbe0b70 947ad46
 Author: Luigi Ballabio <luigi.ballabio@gmail.com>
-Date:   Wed, 27 Apr 2022 09:29:34 +0200
+Date:   Wed, 18 Jan 2023 15:17:42 +0100
 
-    Disable broken link checker
+    Avoid previously deprecated features removed in version 1.30 (#528)
 
- .github/workflows/link-check.yml | 12 ------------
- 1 file changed, 12 deletions(-)
+commit 947ad462d7819ecc3dfd47fedc37c93add1408d0
+Author: Luigi Ballabio <luigi.ballabio@gmail.com>
+Date:   Wed, 18 Jan 2023 11:14:54 +0100
 
-commit 8f360cb82dfb4b280546df3b37bd461746d6c37d
+    Update Scala example
+
+ Scala/examples/CPIBond.scala | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
+
+commit 82f4a5aa5f6bf36baeca111ddf3ab5ab5503e214
+Author: Luigi Ballabio <luigi.ballabio@gmail.com>
+Date:   Tue, 17 Jan 2023 23:11:00 +0100
+
+    Avoid previously deprecated features removed in version 1.30
+
+ Python/test/inflation.py |  1 -
+ SWIG/fra.i               |  3 ---
+ SWIG/inflation.i         | 22 +---------------------
+ SWIG/ratehelpers.i       | 16 ----------------
+ 4 files changed, 1 insertion(+), 41 deletions(-)
+
+commit fbe0b70945f7087f328ed196df12d805bddb3ecb
 Author: Luigi Ballabio <luigi.ballabio@gmail.com>
 Date:   Tue, 18 Jan 2022 11:02:58 +0100
 
-    Set version to 1.27-dev.
+    Set version to 1.30-dev.
 
  Python/setup.py | 2 +-
  R/DESCRIPTION   | 2 +-
  configure.ac    | 2 +-
  3 files changed, 3 insertions(+), 3 deletions(-)
-
-commit 687d8924c1c73a62fa4cc17977dc0789dcc2dafa
-Merge: 9109f58 b651886
-Author: Luigi Ballabio <luigi.ballabio@gmail.com>
-Date:   Wed, 20 Apr 2022 11:29:54 +0200
-
-    Merge pull request #455.
-    
-    Replace Disposable<T> with T
-
-commit b65188617ae4363437e76b8f52278193c651f522
-Author: Jonathan Sweemer <sweemer@gmail.com>
-Date:   Mon, 4 Apr 2022 20:59:05 +0900
-
-    Replace Disposable<T> with T
-
- SWIG/fdm.i           | 27 +++++++++++----------------
- SWIG/functions.i     | 11 +++++------
- SWIG/linearalgebra.i |  9 +++------
- SWIG/ode.i           | 12 ++----------
- SWIG/volatilities.i  |  6 +++---
- 5 files changed, 24 insertions(+), 41 deletions(-)

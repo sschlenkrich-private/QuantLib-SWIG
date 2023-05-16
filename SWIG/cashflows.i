@@ -105,6 +105,8 @@ class IndexedCashFlow : public CashFlow {
     Real notional() const;
     Date baseDate() const;
     Date fixingDate() const;
+    Real baseFixing() const;
+    Real indexFixing() const;
     ext::shared_ptr<Index> index() const;
     bool growthOnly() const;
 };
@@ -389,7 +391,7 @@ class BlackIborCouponPricer : public IborCouponPricer {
                           const TimingAdjustment timingAdjustment = Black76,
                           const Handle<Quote> correlation =
                                     Handle<Quote>(ext::shared_ptr<Quote>(new SimpleQuote(1.0))),
-                          boost::optional<bool> useIndexedCoupon = boost::none);
+                          ext::optional<bool> useIndexedCoupon = ext::nullopt);
 };
 
 %shared_ptr(SubPeriodsPricer)
@@ -612,7 +614,7 @@ class LognormalCmsSpreadPricer : public CmsSpreadCouponPricer {
             const Handle<YieldTermStructure> &couponDiscountCurve =
                 Handle<YieldTermStructure>(),
             const Size IntegrationPoints = 16,
-            const boost::optional<VolatilityType> volatilityType = boost::none,
+            const ext::optional<VolatilityType> volatilityType = ext::nullopt,
             const Real shift1 = Null<Real>(), const Real shift2 = Null<Real>());
     Real swapletPrice() const;
     Rate swapletRate() const;
@@ -621,6 +623,45 @@ class LognormalCmsSpreadPricer : public CmsSpreadCouponPricer {
     Real floorletPrice(Rate effectiveFloor) const;
     Rate floorletRate(Rate effectiveFloor) const;
 };
+
+
+
+%{
+using QuantLib::EquityCashFlow;
+using QuantLib::EquityCashFlowPricer;
+using QuantLib::EquityQuantoCashFlowPricer;
+%}
+
+%shared_ptr(EquityCashFlowPricer)
+class EquityCashFlowPricer {
+  private:
+    EquityCashFlowPricer();
+};
+
+void setCouponPricer(const Leg&,
+                     const ext::shared_ptr<EquityCashFlowPricer>&);
+
+%shared_ptr(EquityCashFlow)
+class EquityCashFlow : public IndexedCashFlow {
+  public:
+    EquityCashFlow(Real notional,
+                   ext::shared_ptr<EquityIndex> index,
+                   const Date& baseDate,
+                   const Date& fixingDate,
+                   const Date& paymentDate,
+                   bool growthOnly = true);
+    void setPricer(const ext::shared_ptr<EquityCashFlowPricer>&);
+};
+
+%shared_ptr(EquityQuantoCashFlowPricer)
+class EquityQuantoCashFlowPricer : public EquityCashFlowPricer {
+  public:
+    EquityQuantoCashFlowPricer(Handle<YieldTermStructure> quantoCurrencyTermStructure,
+                               Handle<BlackVolTermStructure> equityVolatility,
+                               Handle<BlackVolTermStructure> fxVolatility,
+                               Handle<Quote> correlation);
+};
+
 
 // cash flow vector builders
 
@@ -636,10 +677,12 @@ Leg _FixedRateLeg(const Schedule& schedule,
                   BusinessDayConvention exCouponConvention = Unadjusted,
                   bool exCouponEndOfMonth = false,
                   const Calendar& paymentCalendar = Calendar(),
-                  const Natural paymentLag = 0) {
+                  const Natural paymentLag = 0,
+                  Compounding comp = Simple,
+                  Frequency freq = Annual) {
     return QuantLib::FixedRateLeg(schedule)
         .withNotionals(nominals)
-        .withCouponRates(couponRates,dayCount)
+        .withCouponRates(couponRates, dayCount, comp, freq)
         .withPaymentAdjustment(paymentAdjustment)
         .withPaymentCalendar(paymentCalendar.empty() ? schedule.calendar() : paymentCalendar)
         .withPaymentLag(paymentLag)
@@ -665,7 +708,9 @@ Leg _FixedRateLeg(const Schedule& schedule,
                   BusinessDayConvention exCouponConvention = Unadjusted,
                   bool exCouponEndOfMonth = false,
                   const Calendar& paymentCalendar = Calendar(),
-                  Natural paymentLag = 0);
+                  Natural paymentLag = 0,
+                  Compounding compounding = Simple,
+                  Frequency compoundingFrequency = Annual);
 
 %{
 Leg _IborLeg(const std::vector<Real>& nominals,
@@ -685,7 +730,7 @@ Leg _IborLeg(const std::vector<Real>& nominals,
              bool exCouponEndOfMonth = false,
              const Calendar& paymentCalendar = Calendar(),
              const Natural paymentLag = 0,
-             boost::optional<bool> withIndexedCoupons = boost::none) {
+             ext::optional<bool> withIndexedCoupons = ext::nullopt) {
     return QuantLib::IborLeg(schedule, index)
         .withNotionals(nominals)
         .withPaymentDayCounter(paymentDayCounter)
@@ -726,7 +771,7 @@ Leg _IborLeg(const std::vector<Real>& nominals,
              bool exCouponEndOfMonth = false,
              const Calendar& paymentCalendar = Calendar(),
              Natural paymentLag = 0,
-             boost::optional<bool> withIndexedCoupons = boost::none);
+             ext::optional<bool> withIndexedCoupons = ext::nullopt);
 
 %{
 Leg _OvernightLeg(const std::vector<Real>& nominals,
@@ -1111,6 +1156,29 @@ class CashFlows {
                     bool includeSettlementDateFlows,
                     Date settlementDate = Date(),
                     Date npvDate = Date());
+
+    %extend {
+        static std::pair<Real,Real> npvbps(
+                   const Leg& leg,
+                   const ext::shared_ptr<YieldTermStructure>& discountCurve,
+                   bool includeSettlementDateFlows,
+                   const Date& settlementDate = Date(),
+                   const Date& npvDate = Date()) {
+            return QuantLib::CashFlows::npvbps(leg, *discountCurve,
+                                               includeSettlementDateFlows,
+                                               settlementDate, npvDate);
+        }
+        static std::pair<Real,Real> npvbps(
+                   const Leg& leg,
+                   const Handle<YieldTermStructure>& discountCurve,
+                   bool includeSettlementDateFlows,
+                   const Date& settlementDate = Date(),
+                   const Date& npvDate = Date()) {
+            return QuantLib::CashFlows::npvbps(leg, **discountCurve,
+                                               includeSettlementDateFlows,
+                                               settlementDate, npvDate);
+        }
+    }
 
     %extend {
         static Rate atmRate(

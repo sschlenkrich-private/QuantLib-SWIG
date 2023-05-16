@@ -1,37 +1,44 @@
 
-Main changes for QuantLib-SWIG 1.27
+Main changes for QuantLib-SWIG 1.30
 ===================================
 
 More details on the changes are available in ChangeLog.txt and at
-<https://github.com/lballabio/QuantLib-SWIG/milestone/20?closed=1>.
+<https://github.com/lballabio/QuantLib-SWIG/milestone/23?closed=1>.
 
+- **Removed** deprecated features no longer available in the
+  underlying C++ library:
+  - the `WulinYongDoubleBarrierEngine` alias for `SuoWangDoubleBarrierEngine`;
+  - the `spotIncome` and `spotValue` methods of `ForwardRateAgreement`;
+  - constructors for `InterpolatedZeroInflationCurve` and
+    `PiecewiseZeroInflationCurve` taking an `indexIsInterpolated`
+    parameter;
+  - the `indexIsInterpolated` method of `InflationTermStructure`;
+  - some overloaded constructors of `SofrFutureRateHelper`.
 
-- Fixed code generation when Java's `AutoCloseable` support is enabled
-  through the `--enable-java-autocloseable` configure switch.
+- **Renamed** `SwaptionVolCube1` to `SabrSwaptionVolatilityCube` and
+  `SwaptionVolCube2` to `InterpolatedSwaptionVolatilityCube`, as in
+  the underlying C++ library; the old names remain available in Python
+  but not in other languages.
 
-- Exported the `SviSmileSection` and `SviInterpolatedSmileSection`
-  classes; thanks to Fredrik Gerdin Börjesson (@gbfredrik).
+- Exported new `EquityCashFlow`, `EquityIndex` and
+  `EquityTotalReturnSwap` classes with a few tests; thanks to Marcin
+  Rybacki (@marcin-rybacki).
 
-- Exported the `QuantoTermStructure` class; thanks to Sebastian Bohlen
-  (@BohlSeb).
+- Exported constructors for vanilla and barrier pricing engines taking
+  discrete dividends; this makes `DividendVanillaOption` and
+  `DividendBarrierOption` obsolete (@lballabio).
 
-- Exported the `TurnbullWakemanAsianEngine` class; thanks to Jack
-  Gillett (@jackgillett101).
+- Exported new calendars for Austria, Botswana and Romania; thanks to
+  Fredrik Gerdin Börjesson (@gbfredrik).
 
-- Exported shorter name (the same as in C++) for
-  `PiecewiseZeroSpreadedTermStructure`.  The older and uglier
-  `SpreadedLinearZeroInterpolatedTermStructure` is still available.
+- Exported new ASX calendar for Australia (@lballabio).
 
-- Exported the `previousCashFlowAmount` and `nextCashFlowAmount`
-  methods from the `CashFlows` class; thanks to Marcin Rybacki
-  (@marcin-rybacki).
+- Exported `FixedLocalVolSurface` and `GridModelLocalVolSurface`
+  classes with a test; thanks to Klaus Spanderen (@klausspanderen).
 
-- Exported a few missing methods from the `CreditDefaultSwap` class.
+- Exported new CPICoupon constructors (@lballabio).
 
-- Removed the `FDShoutEngine` class, no longer available in the
-  underlying C++ library; thanks to Fredrik Gerdin Börjesson
-  (@gbfredrik).
+- Exported UKHICP index (@lballabio).
 
-- Removed reference to the deprecated `Disposable` class from
-  interface files; thanks to Jonathan Sweemer (@sweemer).
+- Exported a few African currencies (@lballabio).
 

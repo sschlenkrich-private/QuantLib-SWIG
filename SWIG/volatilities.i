@@ -34,7 +34,6 @@
 %include interpolation.i
 %include indexes.i
 %include optimizers.i
-%include options.i
 %include termstructures.i
 %include vectors.i
 %include tuple.i
@@ -50,15 +49,15 @@ using QuantLib::Normal;
 enum VolatilityType { ShiftedLognormal, Normal };
 
 #if defined(SWIGPYTHON)
-%typemap(in) boost::optional<VolatilityType> %{
+%typemap(in) ext::optional<VolatilityType> %{
     if($input == Py_None)
-        $1 = boost::none;
+        $1 = ext::nullopt;
     else if (PyInt_Check($input))
         $1 = (VolatilityType) PyInt_AsLong($input);
     else
         $1 = (VolatilityType) PyLong_AsLong($input);
 %}
-%typecheck (QL_TYPECHECK_VOLATILITYTYPE) boost::optional<VolatilityType> {
+%typecheck (QL_TYPECHECK_VOLATILITYTYPE) ext::optional<VolatilityType> {
 if (PyInt_Check($input) || PyLong_Check($input) || Py_None == $input)
     $1 = 1;
 else
@@ -175,7 +174,8 @@ class YoYOptionletVolatilitySurface : public VolatilityTermStructure {
 };
 
 %template(YoYOptionletVolatilitySurfaceHandle) Handle<YoYOptionletVolatilitySurface>;
-%template(RelinkableYoYOptionletVolatilitySurface) RelinkableHandle<YoYOptionletVolatilitySurface>;
+%template(RelinkableYoYOptionletVolatilitySurfaceHandle) RelinkableHandle<YoYOptionletVolatilitySurface>;
+deprecate_feature(RelinkableYoYOptionletVolatilitySurface, RelinkableYoYOptionletVolatilitySurfaceHandle);
 
 
 %{
@@ -627,7 +627,7 @@ class SwaptionVolatilityMatrix : public SwaptionVolatilityDiscrete {
                                  const bool flatExtrapolation = false,
                                  const VolatilityType type = ShiftedLognormal,
                                  const Matrix& shifts = Matrix()) {
-            return new SwaptionVolatilityMatrix(referenceDate, NullCalendar(), Following,
+            return new SwaptionVolatilityMatrix(referenceDate, QuantLib::NullCalendar(), Following,
                                                 dates, lengths, vols, dayCounter,
                                                 flatExtrapolation, type, shifts);
         }
@@ -660,7 +660,14 @@ class SabrSmileSection : public SmileSection {
     SabrSmileSection(const Date& d,
                      Rate forward,
                      const std::vector<Real>& sabrParameters,
+                     const Date& referenceDate = Date(),
                      const DayCounter& dc = Actual365Fixed(),
+                     Real shift = 0.0,
+                     VolatilityType volatilityType = VolatilityType::ShiftedLognormal);
+    SabrSmileSection(const Date& d,
+                     Rate forward,
+                     const std::vector<Real>& sabrParameters,
+                     const DayCounter& dc,
                      Real shift = 0.0,
                      VolatilityType volatilityType = VolatilityType::ShiftedLognormal);
     SabrSmileSection(Time timeToExpiry,
@@ -751,8 +758,8 @@ class SviInterpolatedSmileSection : public SmileSection {
 
 %{
 using QuantLib::SwaptionVolatilityCube;
-using QuantLib::SwaptionVolCube1;
-using QuantLib::SwaptionVolCube2;
+using QuantLib::SabrSwaptionVolatilityCube;
+using QuantLib::InterpolatedSwaptionVolatilityCube;
 %}
 
 %shared_ptr(SwaptionVolatilityCube);
@@ -764,10 +771,10 @@ class SwaptionVolatilityCube : public SwaptionVolatilityDiscrete {
                        const Period& swapTenor) const;
 };
 
-%shared_ptr(SwaptionVolCube1);
-class SwaptionVolCube1 : public SwaptionVolatilityCube {
+%shared_ptr(SabrSwaptionVolatilityCube);
+class SabrSwaptionVolatilityCube : public SwaptionVolatilityCube {
   public:
-    SwaptionVolCube1(
+    SabrSwaptionVolatilityCube(
              const Handle<SwaptionVolatilityStructure>& atmVolStructure,
              const std::vector<Period>& optionTenors,
              const std::vector<Period>& swapTenors,
@@ -805,18 +812,23 @@ class SwaptionVolCube1 : public SwaptionVolatilityCube {
     }
 };
 
-%shared_ptr(SwaptionVolCube2);
-class SwaptionVolCube2 : public SwaptionVolatilityCube {
+deprecate_feature(SwaptionVolCube1, SabrSwaptionVolatilityCube)
+
+%shared_ptr(InterpolatedSwaptionVolatilityCube);
+class InterpolatedSwaptionVolatilityCube : public SwaptionVolatilityCube {
   public:
-    SwaptionVolCube2(const Handle<SwaptionVolatilityStructure>& atmVolStructure,
-                     const std::vector<Period>& optionTenors,
-                     const std::vector<Period>& swapTenors,
-                     const std::vector<Spread>& strikeSpreads,
-                     const std::vector<std::vector<Handle<Quote> > >& volSpreads,
-                     const ext::shared_ptr<SwapIndex>& swapIndex,
-                     const ext::shared_ptr<SwapIndex>& shortSwapIndex,
-                     bool vegaWeightedSmileFit);
+    InterpolatedSwaptionVolatilityCube(const Handle<SwaptionVolatilityStructure>& atmVolStructure,
+                                       const std::vector<Period>& optionTenors,
+                                       const std::vector<Period>& swapTenors,
+                                       const std::vector<Spread>& strikeSpreads,
+                                       const std::vector<std::vector<Handle<Quote> > >& volSpreads,
+                                       const ext::shared_ptr<SwapIndex>& swapIndex,
+                                       const ext::shared_ptr<SwapIndex>& shortSwapIndex,
+                                       bool vegaWeightedSmileFit);
 };
+
+deprecate_feature(SwaptionVolCube2, InterpolatedSwaptionVolatilityCube)
+
 
 %{
 using QuantLib::ConstantYoYOptionletVolatility;
@@ -836,6 +848,8 @@ class ConstantYoYOptionletVolatility : public YoYOptionletVolatilitySurface {
                                    Real minStrike = -1.0,
                                    Real maxStrike = 100.0);
 };
+
+
 %{
 using QuantLib::FlatSmileSection;
 %}
