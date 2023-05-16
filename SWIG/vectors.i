@@ -55,8 +55,6 @@ namespace std {
     %template(UnsignedIntPair) pair<unsigned int,unsigned int>;
     %template(UnsignedIntPairVector) vector<pair<unsigned int,unsigned int>>;
 
-    %template(DoubleVectorVector) vector< vector<double> >;    
-    
 #if !defined(SWIGR)
     %template(NodePair) pair<Date,double>;
     %template(NodeVector) vector<pair<Date,double> >;
